@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Lq4vpxl5qw7pvARiA8Bl5OT5esbKIPDlaCPaByjLzK3UofIAP8/wgVNf+DPa4V+dr3W2p67Ml1Zrf/4KVb1uqw==",
+  "success": true,
+  "projectFilePath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
+  "expectedPackageFiles": [
+    "/home/runner/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/restsharp/106.11.7/restsharp.106.11.7.nupkg.sha512"
+  ],
+  "logs": []
+}
