@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Reflection;
 using System.Net.Http;
 using System.IO;
 using Fortnite_API;
@@ -19,18 +20,23 @@ namespace ChicShop
 
             var shop = api.V2.Shop.GetBr().Data;
 
-            await Task.Delay(-1);        }
+            await Task.Delay(-1);        
+        }
 
         public SKBitmap DrawItem(BrCosmeticV2 item)
         {
             using (var cosmetic = GetBitmapFromUrl(item.Images.Featured))
             {
-                using (var stream = File.OpenWrite(Path.GetDirectoryName(Assembly.GetExecitingAssembly().CodeBase)))
-                SKImage.FromBitmap(cosmetic).Encode(SKEncodedImageFormat.Png, 100).SaveTo()
+                using (var stream = File.OpenWrite(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "test.png")))
+                {
+                    SKImage.FromBitmap(cosmetic).Encode(SKEncodedImageFormat.Png, 100).SaveTo(stream);
+                }
             }
+
+            return null;
         }
 
-        public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUri(new Uri(url));
+        public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUrl(new Uri(url));
         public SKBitmap GetBitmapFromUrl(Uri url)
         {
             using (var client = new HttpClient())

@@ -1,14 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "qRCRdGqu+SVKh40mHDyfyuFovWy7KMDoTGKWryzk61nFFGd9q+xQW9c4SatCEJhfKOVXTo85HGTbBuHYQ4r7gg==",
+  "dgSpecHash": "S2WHtfwh1MfBu1LsRu/x6Sjxmapl+rgi5mz5KsgCTrIA+elFxm7agOjKgITMh06q/QacVaZ9ELFApisTRwXKSA==",
   "success": true,
-  "projectFilePath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
+  "projectFilePath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
   "expectedPackageFiles": [
-    "/home/runner/.nuget/packages/fortnite-api-wrapper/2.1.0/fortnite-api-wrapper.2.1.0.nupkg.sha512",
-    "/home/runner/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
-    "/home/runner/.nuget/packages/restsharp/106.11.7/restsharp.106.11.7.nupkg.sha512",
-    "/home/runner/.nuget/packages/skiasharp/2.80.2/skiasharp.2.80.2.nupkg.sha512",
-    "/home/runner/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512"
+    "C:\\Users\\Hopík\\.nuget\\packages\\fortnite-api-wrapper\\2.1.0\\fortnite-api-wrapper.2.1.0.nupkg.sha512",
+    "C:\\Users\\Hopík\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\Hopík\\.nuget\\packages\\restsharp\\106.11.7\\restsharp.106.11.7.nupkg.sha512",
+    "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp\\2.80.2\\skiasharp.2.80.2.nupkg.sha512",
+    "C:\\Users\\Hopík\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
   ],
   "logs": []
 }
