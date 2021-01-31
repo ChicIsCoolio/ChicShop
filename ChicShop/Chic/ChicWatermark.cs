@@ -1,4 +1,4 @@
-/*ls;
+/*
 using SkiaSharp;
 using System;
 using System.IO;
@@ -77,9 +77,10 @@ using SysmpleConverteChicShopnamespace FModel.Chic
                     {
                         IsAntialias = true,
                         FilterQuality = SKFilterQuality.High,
-                        ImageFilter = SKImageFilter.CreateDrop*/hadow(0, 0, 5, 5, SKColors.Black)
+                        ImageFilter = SKImageFilter.CreateDrophadow(0, 0, 5, 5, SKColors.Black)
                     });
             }
         }
     }
 }
+*/

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namesChicShopModel.Chic
+﻿namespace ChicShop.Chic
 {
     public class ChicData
     {

@@ -27,7 +27,7 @@ naChicShope FModel.Chic
                     });
                     x += size + 1;
                 }
- */          }
+            }
         }
     }
-}
+}*/

@@ -1,19 +1,17 @@
-;
-using FModel.Utils;
-using FModel.ViewModels.StatusBar;
 using SkiaSharp;
 using System;
-using System.Printing;
+using System.IO;
+using System.Reflection;
 
-nChicShopce FModel.Chic
+namespace ChicShop.Chic
 {
     static class ChicText
     {
-        private const int _STARTER_TEXT_POSITION = 380;
-        private static int _BOTTOM_TEXT_SIZE = 15;
-        private static int _NAME_TEXT_SIZE = 47;
+        private static float STARTER_POSITION_RATIO { get; } = ChicRatios.Get(380);
+        private static float BOTTOM_TEXT_SIZE_RATIO { get; } = ChicRatios.Get(15);
+        private static float NAME_TEXT_SIZE_RATIO { get; } = ChicRatios.Get(47);
 
-        public static void DrawBackground(SKCanvas c, IBase icon)
+        public static void DrawBackground(SKCanvas c, BaseIcon icon)
         {
             /*var pathTop = new SKPath { FillType = SKPathFillType.EvenOdd };
             pathTop.MoveTo(icon.Margin, icon.Margin);
@@ -30,61 +28,70 @@ nChicShopce FModel.Chic
             });*/
 
             var rarityPath = new SKPath { FillType = SKPathFillType.EvenOdd };
-            rarityPath.MoveTo(icon.Margin, icon.Height - icon.Margin);
-            rarityPath.LineTo(icon.Margin, icon.Height - icon.Margin - 75);
-            rarityPath.LineTo(icon.Width - icon.Margin, icon.Height - icon.Margin - 85);
-            rarityPath.LineTo(icon.Width - icon.Margin, icon.Height - icon.Margin);
+            rarityPath.MoveTo(0, icon.Height);
+            rarityPath.LineTo(0, icon.Height - icon.Height * ChicRatios.Get(75));
+            rarityPath.LineTo(icon.Width, icon.Height - icon.Height * ChicRatios.Get(85));
+            rarityPath.LineTo(icon.Width, icon.Height);
             rarityPath.Close();
 
-            SKColor rarityColor;
-            {
-                if (icon is BaseIcon b && b.HasSeries) rarityColor = b.RarityBackgroundColors[0];
-                else rarityColor = icon.RarityBackgroundColors[0];
-            }
+            SKColor rarityColor = icon.RarityColors[0];
 
             c.DrawPath(rarityPath, new SKPaint
             {
                 IsAntialias = true,
                 FilterQuality = SKFilterQuality.High,
                 Color = rarityColor,
-                ImageFilter = SKImageFilter.CreateDropShadow(0, -3, 5, 5, SKColors.Black, null, new SKImageFilter.CropRect(SKRect.Create(icon.Margin, icon.Margin, icon.Width - icon.Margin, icon.Height - icon.Margin)))
+                ImageFilter = SKImageFilter.CreateDropShadow(0, -3, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black, null, new SKImageFilter.CropRect(SKRect.Create(0, 0, icon.Width, icon.Height)))
             });
 
             var pathBottom = new SKPath { FillType = SKPathFillType.EvenOdd };
-            pathBottom.MoveTo(icon.Margin, icon.Height - icon.Margin);
-            pathBottom.LineTo(icon.Margin, icon.Height - icon.Margin - 65);
-            pathBottom.LineTo(icon.Width - icon.Margin, icon.Height - icon.Margin - 75);
-            pathBottom.LineTo(icon.Width - icon.Margin, icon.Height - icon.Margin);
+            pathBottom.MoveTo(0, icon.Height);
+            pathBottom.LineTo(0, icon.Height - icon.Height * ChicRatios.Get(65));
+            pathBottom.LineTo(icon.Width, icon.Height - icon.Height * ChicRatios.Get(75));
+            pathBottom.LineTo(icon.Width, icon.Height);
             pathBottom.Close();
             c.DrawPath(pathBottom, new SKPaint
             {
                 IsAntialias = true,
                 FilterQuality = SKFilterQuality.High,
-                Color = new SKColor(30, 30, 30),
+                Color = new SKColor(30, 30, 30)
+            });
+
+            var pathBottomBottom = new SKPath { FillType = SKPathFillType.EvenOdd };
+            pathBottomBottom.MoveTo(0, icon.Height);
+            pathBottomBottom.LineTo(0, icon.Height - icon.Height * ChicRatios.Get(22));
+            pathBottomBottom.LineTo(icon.Width, icon.Height - icon.Height * ChicRatios.Get(32));
+            pathBottomBottom.LineTo(icon.Width, icon.Height);
+            pathBottomBottom.Close();
+            c.DrawPath(pathBottomBottom, new SKPaint
+            {
+                IsAntialias = true,
+                FilterQuality = SKFilterQuality.High,
+                Color = new SKColor(20, 20, 20)
             });
         }
 
-        public static void DrawDisplayName(SKCanvas c, IBase icon)
+        public static void DrawDisplayName(SKCanvas c, BaseIcon icon)
         {
             string text = icon.DisplayName;
 
             if (string.IsNullOrEmpty(text)) return;
 
-            int x = icon.Margin + 5;
-            int y = _STARTER_TEXT_POSITION + _NAME_TEXT_SIZE;
+            int x = (int)(icon.Height * ChicRatios.Get(5));
+            int y = (int)(icon.Height * STARTER_POSITION_RATIO + icon.Height * NAME_TEXT_SIZE_RATIO);
 
             SKPaint namePaint = new SKPaint
             {
                 IsAntialias = true,
                 FilterQuality = SKFilterQuality.High,
-                Typeface = Text.TypeFaces.DisplayNameTypeface,
-                TextSize = _NAME_TEXT_SIZE,
+                Typeface = ChicTypefaces.BurbankBigCondensedBold,
+                TextSize = icon.Height * NAME_TEXT_SIZE_RATIO,
                 Color = SKColors.White,
                 TextAlign = SKTextAlign.Left,
-                ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 5, 5, SKColors.Black)
+                ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * 0.009765625f, icon.Height * 0.009765625f, SKColors.Black)
             };
 
-            while (namePaint.MeasureText(text) > icon.Width - icon.Margin * 2)
+            while (namePaint.MeasureText(text) > icon.Width)
             {
                 namePaint.TextSize--;
             }
@@ -92,56 +99,38 @@ nChicShopce FModel.Chic
             c.DrawText(text, x, y, namePaint);
         }
 
-        public static void DrawDescription(SKCanvas c, IBase icon)
+        public static void DrawToBottom(SKCanvas c, BaseIcon icon, SKTextAlign align, string text)
         {
-            string text = icon.Description;
-            int lineCount = text.Split("\n").Length;
-
             if (string.IsNullOrEmpty(text)) return;
 
             SKPaint paint = new SKPaint
             {
                 IsAntialias = true,
                 FilterQuality = SKFilterQuality.High,
-                Typeface = Text.TypeFaces.DescriptionTypeface,
-                TextSize = 18,
-                Color = SKColors.White
+                Typeface = ChicTypefaces.BurbankBigRegularBlack,
+                TextSize = icon.Height * (align == SKTextAlign.Left ? BOTTOM_TEXT_SIZE_RATIO : ChicRatios.Get(30)),
+                Color = SKColors.White,
+                TextAlign = align
             };
 
-            {
-                float lineHeight = paint.TextSize * 1.2f;
-                float height = lineCount * lineHeight;
+            var five = (int)(icon.Height * ChicRatios.Get(5));
 
-                while (height > icon.Height - _BOTTOM_TEXT_SIZE - 3 - _STARTER_TEXT_POSITION - _NAME_TEXT_SIZE - 12)
-                {
-                    FConsole.AppendText($"[CHIC MODEL DEBUG] - {height} -- {icon.Height - _BOTTOM_TEXT_SIZE - 3 - _STARTER_TEXT_POSITION - _NAME_TEXT_SIZE - 12}", "#ce9bb5", true);
-                    paint.TextSize--;
-                    lineHeight = paint.TextSize * 1.2f;
-                    height = lineCount * lineHeight;
-                }
-            }
-
-            Helper.DrawCenteredMultilineText(c, text, 4, icon, ETextSide.Right,
-                new SKRect(icon.Margin, _STARTER_TEXT_POSITION + _NAME_TEXT_SIZE + 12, icon.Width - icon.Margin, icon.Height - _BOTTOM_TEXT_SIZE - 3),
-                paint);
+            if (align == SKTextAlign.Left) c.DrawText(text, five, icon.Height - five, paint);
+            else c.DrawText(text, icon.Width - five - (int)(icon.Height * ChicRatios.Get(27.5f)), icon.Height - five, paint);
         }
 
-        public static void DrawToBottom(SKCanvas c, BaseIcon icon, ETextSide side, string text)
+        public static void DrawVbuck(SKCanvas c, BaseIcon icon)
         {
-            if (string.IsNullOrEmpty(text)) return;
+            var two = (int)(icon.Height * ChicRatios.Get(2));
+            var vbuckSize = (int)(icon.Height * ChicRatios.Get(27.5f));
 
-            SKPaint paint = new SKPaint
-            {
-                IsAntialias = true,
-                FilterQuality = SKFilterQuality.High,
-                Typeface = side == ETextSide.Left ? Text.TypeFaces.BottomDefaultTypeface ?? Text.TypeFaces.DisplayNameTypeface : Text.TypeFaces.BottomDefaultTypeface ?? Text.TypeFaces.DefaultTypeface,
-                TextSize = Text.TypeFaces.BottomDefaultTypeface == null ? 15 : 13,
-                Color = SKColors.White,
-                TextAlign = side == ETextSide.Left ? SKTextAlign.Left : SKTextAlign.Right
-            };
-
-            if (side == ETextSide.Left) c.DrawText(text, 5, icon.Size - 5, paint);
-            else c.DrawText(text, icon.Size - 5, icon.Size - 5, paint);
+            c.DrawBitmap(SKBitmap.Decode(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Resources", "T-VBuck-128.png")),
+                new SKRect(icon.Width - vbuckSize - two, icon.Height - vbuckSize - two, icon.Width - two, icon.Height - two),
+                new SKPaint
+                {
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                });
         }
     }
 }

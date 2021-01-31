@@ -1,31 +1,20 @@
-﻿using FModel.Creator.Bases;
-using FModel.Creator.Icons;
-using FModel.Creator.Rarities;
-using FModel.Creator.Stats;
-using FModel.Creator.Texts;
-using FModel.PakReader.Parsers.Class;
-using FModel.PakReader.Parsers.Objects;
-using FModel.Utils;
-using FModel.ViewModels.ImageBox;
-using SkiaSharp;
+﻿using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.TextChicShopamespace FModel.Chic
+using System.Globalization;
+using System.Text;
+
+namespace ChicShop.Chic
 {
     static class ChicIcon
     {
-        public static bool GenerateIcon(IUExport export, string exportType, ref string assetName)
-          => GenerateIcon(new BaseIcon(export, exportType, ref assetName), assetName);
-
-        public static bool GenerateIcon(BaseIcon icon, string assetName)
+        public static SKBitmap GenerateIcon(BaseIcon icon)
         {
-            int width = icon.Size + (icon.AdditionalSize > 0 ? (int)(icon.Size / 1.5f) : 0);
-            using (var ret = new SKBitmap(width, icon.Size, SKColorType.Rgba8888, SKAlphaType.Premul))
-            using (var c = new SKCanvas(ret))
-            {
-                icon.Margin = 0;
+            var bitmap = new SKBitmap(icon.Width, icon.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
 
-                FConsole.AppendText($"[CHIC MODEL DEBUG] - {width}", "#CE9BB5", true);
+            using (var c = new SKCanvas(bitmap))
+            {
+                //#CE9BB5
 
                 //Background
                 ChicRarity.DrawRarity(c, icon);
@@ -33,56 +22,38 @@ using System.TextChicShopamespace FModel.Chic
                 //Draw item icon
                 ChicImage.DrawPreviewImage(c, icon);
 
-                // has more things to show
-                if (width > icon.Size)
-                {
-                    ChicStatistics.DrawStats(c, icon);
-                }
-
                 //Draw Text Background
                 ChicText.DrawBackground(c, icon);
                 //Display Name
                 ChicText.DrawDisplayName(c, icon);
-                //Description
-                ChicText.DrawDescription(c, icon);
 
-                if (!icon.ShortDescription.Equals(icon.DisplayName) && !icon.ShortDescription.Equals(icon.Description))
+                if (!icon.ShortDescription.Equals(icon.DisplayName))
                 {
                     //Draw Item Type
-                    ChicText.DrawToBottom(c, icon, ETextSide.Left, icon.ShortDescription);
+                    ChicText.DrawToBottom(c, icon, SKTextAlign.Left, icon.ShortDescription.ToUpper());
                 }
 
-                string sourceText = icon.CosmeticSource switch
-                {
-                    "ItemShop" => "Item Shop",
-                    "Granted.Founders" => "Founder's Pack",
-                    _ => icon.CosmeticSource
-                };
+                ChicText.DrawVbuck(c, icon);
 
-                if (sourceText.Contains("BattlePass.Paid"))
                 {
-                    string season = sourceText.Replace("Season", "").Replace(".BattlePass.Paid", "");
-                    season = season == "10" ? "X" : season;
+                    string priceText = icon.Price > 0 ? icon.Price.ToString("N0", CultureInfo.GetCultureInfo("en-US")) : "FREE";
 
-                    sourceText = $"Season {season} Battle Pass";
+                    ChicText.DrawToBottom(c, icon, SKTextAlign.Right, priceText);
                 }
-
-                //Draw Source
-                ChicText.DrawToBottom(c, icon, ETextSide.Right, sourceText);
 
                 //Draw Flags
-                ChicUserFacingFlags.DrawUserFacingFlags(c, icon);
+                //ChicUserFacingFlags.DrawUserFacingFlags(c, icon);
 
                 //Watermark
                 //ChicWatermark.DrawWatermark(c, icon.Size, shadow: true); // watermark should only be applied on icons with width = 512
                 //ChicWatermark.DrawWatermark(c, icon, 18, "@ChicIsCoolio", 2);
-                ChicWatermark.DrawChicFace(c, SKColors.White, icon.Size - 120);
+                //ChicWatermark.DrawChicFace(c, SKColors.White, icon.Size - 120);
 
                 //Shows the image
-                ImageBoxVm.imageBoxViewModel.Set(ret, assetName);
+                //ImageBoxVm.imageBoxViewModel.Set(ret, assetName);
             }
 
-            return true;
+            return bitmap;
         }
     }
 }

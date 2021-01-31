@@ -7,6 +7,9 @@ using System.IO;
 using Fortnite_API;
 using Fortnite_API.Objects.V2;
 using SkiaSharp;
+using ChicShop.Chic;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace ChicShop
 {
@@ -23,65 +26,53 @@ namespace ChicShop
 
             var watch = new Stopwatch();
             watch.Start();
-            DrawItem(shop.Featured.Entries[0].Items[0]);
+
+            Console.WriteLine(shop.Date);
+
+            if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries);
+            if (shop.HasDaily) GenerateEntries(shop.Daily.Entries);
+            if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries);
+            if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries);
+
             watch.Stop();
             Console.WriteLine("Done in " + watch.Elapsed);
 
             await Task.Delay(-1);        
         }
 
-        public SKBitmap DrawItem(BrCosmeticV2 item)
+        public void GenerateEntries(List<BrShopV2StoreFrontEntry> entries)
         {
-            SKBitmap icon = new SKBitmap(1024, 1024);
-            
-            using (SKCanvas canvas = new SKCanvas(icon))
+            foreach (var entry in entries)
             {
-                canvas.DrawRect(0, 0, icon.Width, icon.Height,
-                    new SKPaint
+                var item = entry.Items[0];
+
+                var icon = new BaseIcon
+                {
+                    DisplayName = item.Name,
+                    ShortDescription = item.Type.DisplayValue,
+                    Price = entry.FinalPrice,
+                    IconImage = GetBitmapFromUrl(item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon),
+                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image) : null,
+                    Width = 768,
+                    Height = 1024
+                };
+
+                ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
+
+                using (var bitmap = ChicIcon.GenerateIcon(icon))
+                {
+                    using (var image = SKImage.FromBitmap(bitmap))
                     {
-                        IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
-                        Shader = SKShader.CreateRadialGradient(
-                            new SKPoint(icon.Width / 2, icon.Height / 2),
-                            icon.Width / 5 * 4,
-                            new SKColor[] {
-                                new SKColor(30, 30, 30),
-                                new SKColor(50, 50, 50)
-                            },
-                            SKShaderTileMode.Clamp)
-                    });
-
-                using (var cosmetic = GetBitmapFromUrl(item.Images.Featured))
-                {
-                    canvas.DrawBitmap(cosmetic, 0, 0,
-                        new SKPaint
+                        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                         {
-                            IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High,
-                            ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 5, 5, SKColors.Black)
-                        });
-                }
-
-                var rarityPath = new SKPath { FillType = SKPathFillType.EvenOdd }
-                rarityPath.MoveTo(0, icon.Height);
-                rarityPath.LineTo(0, icon.Height - 75);
-                rarityPath.LineTo(icon.Width, icon.Height - 85);
-                rarityPath.LienTo(icon.WIdth, icon.Height);
-                rarityPath.Close();
-
-                SKRarityColor rarityColor
-                {
-                    
+                            using (var stream = File.OpenWrite(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Output", item.Id + ".png")))
+                            {
+                                data.SaveTo(stream);
+                            }
+                        }
+                    }
                 }
             }
-
-            using (var stream = File.OpenWrite(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "test.png")))
-                using (var data = SKImage.FromBitmap(icon).Encode(SKEncodedImageFormat.Png, 100))
-                {
-                    data.SaveTo(stream);
-                }
-
-            return null;
         }
 
         public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUrl(new Uri(url));
