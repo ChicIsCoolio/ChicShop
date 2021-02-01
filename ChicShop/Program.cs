@@ -15,7 +15,8 @@ namespace ChicShop
 {
     public class Program
     {
-        public static void Root = "\\home\\runner\\ChicShop\\";
+        //public static string Root = "\\home\\runner\\ChicShop\\";
+        public static string Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
