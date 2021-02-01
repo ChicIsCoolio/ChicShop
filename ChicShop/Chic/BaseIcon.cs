@@ -22,6 +22,12 @@ namespace ChicShop.Chic
         {
             IconImage.Dispose();
             RarityBackgroundImage.Dispose();
+
+            DisplayName = "";
+            ShortDescription = "";
+            Price = 0;
+            Width = 0;
+            Height = 0;
         }
     }
 }

@@ -31,10 +31,29 @@ namespace ChicShop
 
             Console.WriteLine(shop.Date);
 
-            if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries);
-            if (shop.HasDaily) GenerateEntries(shop.Daily.Entries);
-            if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries);
-            if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries);
+            Dictionary<BrShopV2StoreFrontEntry, SKBitmap> entries = new Dictionary<BrShopV2StoreFrontEntry, SKBitmap>();
+
+            if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries, ref entries);
+            if (shop.HasDaily) GenerateEntries(shop.Daily.Entries, ref entries);
+            if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries, ref entries);
+            if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries, ref entries);
+
+            foreach (var entry in entries)
+            {
+                using (entry.Value)
+                {
+                    using (var image = SKImage.FromBitmap(entry.Value))
+                    {
+                        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                        {
+                            using (var stream = File.OpenWrite(Root + "Output/" + entry.Key.Items[0].Id + ".png"))
+                            {
+                                data.SaveTo(stream);
+                            }
+                        }
+                    }
+                }
+            }
 
             watch.Stop();
             Console.WriteLine("Done in " + watch.Elapsed);
@@ -42,10 +61,8 @@ namespace ChicShop
             await Task.Delay(-1);        
         }
 
-        public Dictionary<BrShopV2StoreFrontEntry, SKBitmap> GenerateEntries(List<BrShopV2StoreFrontEntry> entries)
+        public void GenerateEntries(List<BrShopV2StoreFrontEntry> entries, ref Dictionary<BrShopV2StoreFrontEntry, SKBitmap> entr)
         {
-            Dictionary<BrShopV2StoreFrontEntry, SKBitmap> dictionary = new Dictionary<BrShopV2StoreFrontEntry, SKBitmap>();
-
             foreach (var entry in entries)
             {
                 var item = entry.Items[0];
@@ -59,25 +76,11 @@ namespace ChicShop
                     RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image) : null,
                     Width = 768,
                     Height = 1024
-                });
+                })
                 {
                     ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
 
-                    dictionary.Add(entry, ChicIcon.Generateicon(icon));
-
-                    /*using (var bitmap = ChicIcon.GenerateIcon(icon))
-                    {
-                        using (var image = SKImage.FromBitmap(bitmap))
-                        {
-                            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-                            {
-                                using (var stream = File.OpenWrite(Root + "Output/" + item.Id + ".png"))
-                                {
-                                    data.SaveTo(stream);
-                                }
-                            }
-                        }
-                    }*/
+                    entr.Add(entry, ChicIcon.GenerateIcon(icon));
                 }
             }
         }
