@@ -124,12 +124,12 @@ namespace ChicShop.Chic
             var two = (int)(icon.Height * ChicRatios.Get(2));
             var vbuckSize = (int)(icon.Height * ChicRatios.Get(27.5f));
 
-            c.DrawBitmap(SKBitmap.Decode(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Resources", "T-VBuck-128.png")),
+            c.DrawBitmap(SKBitmap.Decode(Program.Root + "Resources\\T-VBuck-128.png")),
                 new SKRect(icon.Width - vbuckSize - two, icon.Height - vbuckSize - two, icon.Width - two, icon.Height - two),
                 new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
+                    FilterQuality = SKFilterQuality.High
                 });
         }
     }

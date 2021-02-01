@@ -15,11 +15,15 @@ namespace ChicShop
 {
     public class Program
     {
+        public static void Root = "\\home\\runner\\ChicShop\\";
+
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
+            Console.WriteLine(Assembly.GetExecutingAssembly().Location);
+
             var api = new FortniteApi();
 
             var shop = api.V2.Shop.GetBr().Data;
@@ -65,7 +69,7 @@ namespace ChicShop
                     {
                         using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                         {
-                            using (var stream = File.OpenWrite(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Output", item.Id + ".png")))
+                            using (var stream = File.OpenWrite(Root + "Output\\" + item.Id + ".png"))
                             {
                                 data.SaveTo(stream);
                             }

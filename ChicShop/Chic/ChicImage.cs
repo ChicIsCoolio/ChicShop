@@ -23,7 +23,7 @@ namespace ChicShop.Chic
                 {
                     IsAntialias = true,
                     FilterQuality = SKFilterQuality.High,
-                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * 0.009765625f, icon.Height * 0.009765625f, SKColors.Black)
+                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black)
                 });
         }
             /*c.DrawBitmap(icon.IconImage, icon.Width - icon.IconImage.Width, icon.Height - icon.IconImage.Height
