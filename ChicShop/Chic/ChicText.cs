@@ -1,7 +1,5 @@
 using SkiaSharp;
 using System;
-using System.IO;
-using System.Reflection;
 
 namespace ChicShop.Chic
 {

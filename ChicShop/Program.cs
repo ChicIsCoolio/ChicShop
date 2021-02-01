@@ -1,15 +1,12 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Reflection;
 using System.Net.Http;
 using System.IO;
-using Fortnite_API;
-using Fortnite_API.Objects.V2;
 using SkiaSharp;
 using ChicShop.Chic;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using ChicShop.Chic.Shop;
 
 namespace ChicShop
 {
@@ -22,25 +19,27 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            var api = new FortniteApi();
-
-            var shop = api.V2.Shop.GetBr().Data;
+            var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
             var watch = new Stopwatch();
             watch.Start();
 
-            Console.WriteLine(shop.Date);
+            Console.WriteLine(shop.ShopDate);
 
-            Dictionary<BrShopV2StoreFrontEntry, SKBitmap> entries = new Dictionary<BrShopV2StoreFrontEntry, SKBitmap>();
+            Dictionary<StorefrontEntry, SKBitmap> entries = new Dictionary<StorefrontEntry, SKBitmap>();
 
             if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries, ref entries);
             if (shop.HasDaily) GenerateEntries(shop.Daily.Entries, ref entries);
             if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries, ref entries);
             if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries, ref entries);
 
+            List<string> sections = new List<string>();
+
             foreach (var entry in entries)
             {
-                using (entry.Value)
+                if (!sections.Contains(entry.Key.SectionId)) sections.Add(entry.Key.SectionId);
+
+                /*using (entry.Value)
                 {
                     using (var image = SKImage.FromBitmap(entry.Value))
                     {
@@ -52,7 +51,7 @@ namespace ChicShop
                             }
                         }
                     }
-                }
+                }*/
             }
 
             watch.Stop();
@@ -61,7 +60,7 @@ namespace ChicShop
             await Task.Delay(-1);        
         }
 
-        public void GenerateEntries(List<BrShopV2StoreFrontEntry> entries, ref Dictionary<BrShopV2StoreFrontEntry, SKBitmap> entr)
+        public void GenerateEntries(StorefrontEntry[] entries, ref Dictionary<StorefrontEntry, SKBitmap> entr)
         {
             foreach (var entry in entries)
             {

@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "Koia2VRtyPsp2sRnsHePrScUsnODCfe1/UzH0qh/Tg8MisQHbg78DhZ0OUjMJYn1tSKOAYGQSiT085PIQIIb+Q==",
+  "dgSpecHash": "neWyzY2+ED7ig52bDKGEKHmW72pBDflASkd0fWu2mY07dTGB0wGMmBfoafmBk0ZWDnA4NVzxyoUt3Dm6+DB5mg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Hopík\\.nuget\\packages\\fortnite-api-wrapper\\2.1.0\\fortnite-api-wrapper.2.1.0.nupkg.sha512",
     "C:\\Users\\Hopík\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
     "C:\\Users\\Hopík\\.nuget\\packages\\restsharp\\106.11.7\\restsharp.106.11.7.nupkg.sha512",
     "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp\\2.80.2\\skiasharp.2.80.2.nupkg.sha512",
