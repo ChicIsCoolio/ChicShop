@@ -15,15 +15,13 @@ namespace ChicShop
 {
     public class Program
     {
-        public static string Root = "\\home\\runner\\ChicShop\\";
+        public static string Root = "/home/runner/ChicShop/";
 
-        static void Main(string[] args)
+        static void Main(string[]  args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
-            Console.WriteLine(Assembly.GetExecutingAssembly().Location);
-
             var api = new FortniteApi();
 
             var shop = api.V2.Shop.GetBr().Data;
@@ -44,13 +42,15 @@ namespace ChicShop
             await Task.Delay(-1);        
         }
 
-        public void GenerateEntries(List<BrShopV2StoreFrontEntry> entries)
+        public Dictionary<BrShopV2StoreFrontEntry, SKBitmap> GenerateEntries(List<BrShopV2StoreFrontEntry> entries)
         {
+            Dictionary<BrShopV2StoreFrontEntry, SKBitmap> dictionary = new Dictionary<BrShopV2StoreFrontEntry, SKBitmap>();
+
             foreach (var entry in entries)
             {
                 var item = entry.Items[0];
 
-                var icon = new BaseIcon
+                using (var icon = new BaseIcon
                 {
                     DisplayName = item.Name,
                     ShortDescription = item.Type.DisplayValue,
@@ -59,22 +59,25 @@ namespace ChicShop
                     RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image) : null,
                     Width = 768,
                     Height = 1024
-                };
-
-                ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
-
-                using (var bitmap = ChicIcon.GenerateIcon(icon))
+                });
                 {
-                    using (var image = SKImage.FromBitmap(bitmap))
+                    ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
+
+                    dictionary.Add(entry, ChicIcon.Generateicon(icon));
+
+                    /*using (var bitmap = ChicIcon.GenerateIcon(icon))
                     {
-                        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                        using (var image = SKImage.FromBitmap(bitmap))
                         {
-                            using (var stream = File.OpenWrite(Root + "Output\\" + item.Id + ".png"))
+                            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                             {
-                                data.SaveTo(stream);
+                                using (var stream = File.OpenWrite(Root + "Output/" + item.Id + ".png"))
+                                {
+                                    data.SaveTo(stream);
+                                }
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }

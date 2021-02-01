@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChicShop.Chic
 {
-    public class BaseIcon
+    public class BaseIcon : IDisposable
     {
         public SKBitmap IconImage;
         public SKBitmap RarityBackgroundImage;
@@ -17,5 +17,11 @@ namespace ChicShop.Chic
         public int Price;
         public int Width = 1024;
         public int Height = 1024;
+
+        public void Dispose()
+        {
+            IconImage.Dispose();
+            RarityBackgroundImage.Dispose();
+        }
     }
 }
