@@ -16,8 +16,8 @@ namespace ChicShop.Chic
 
         public void Dispose()
         {
-            IconImage.Dispose();
-            RarityBackgroundImage.Dispose();
+            if (IconImage != null) IconImage.Dispose();
+            if (RarityBackgroundImage != null) RarityBackgroundImage.Dispose();
 
             DisplayName = "";
             ShortDescription = "";

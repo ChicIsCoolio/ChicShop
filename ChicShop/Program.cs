@@ -54,6 +54,11 @@ namespace ChicShop
                 }*/
             }
 
+            foreach (var section in sections)
+            {
+                Console.WriteLine(section);
+            }
+
             watch.Stop();
             Console.WriteLine("Done in " + watch.Elapsed);
 
