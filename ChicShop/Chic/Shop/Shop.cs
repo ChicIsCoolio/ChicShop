@@ -78,12 +78,17 @@ namespace ChicShop.Chic.Shop
         public string NewDisplayAssetPath;
         [JsonProperty("items")]
         public EntryItem[] Items;
+
+        public bool HasBanner => Banner != null;
+        public bool IsBundle => Bundle != null;
     }
 
     public class EntryBundle
     {
         [JsonProperty("name")]
         public string Name;
+        [JsonProperty("info")]
+        public string Info;
         [JsonProperty("image")]
         public Uri Image;
     }

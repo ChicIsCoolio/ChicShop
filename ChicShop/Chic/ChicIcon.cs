@@ -10,48 +10,63 @@ namespace ChicShop.Chic
     {
         public static SKBitmap GenerateIcon(BaseIcon icon)
         {
-            var bitmap = new SKBitmap(icon.Width, icon.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            var bitmap = new SKBitmap(icon.Width + 100, icon.Height + 100);
 
-            using (var c = new SKCanvas(bitmap))
+            using (var bmp = new SKBitmap(icon.Width, icon.Height, SKColorType.Rgba8888, SKAlphaType.Premul))
             {
-                //#CE9BB5
-
-                //Background
-                ChicRarity.DrawRarity(c, icon);
-
-                //Draw item icon
-                ChicImage.DrawPreviewImage(c, icon);
-
-                //Draw Text Background
-                ChicText.DrawBackground(c, icon);
-                //Display Name
-                ChicText.DrawDisplayName(c, icon);
-
-                if (!icon.ShortDescription.Equals(icon.DisplayName))
+                using (var c = new SKCanvas(bmp))
                 {
-                    //Draw Item Type
-                    ChicText.DrawToBottom(c, icon, SKTextAlign.Left, icon.ShortDescription.ToUpper());
+                    //#CE9BB5
+
+                    //Background
+                    ChicRarity.DrawRarity(c, icon);
+
+                    //Draw item icon
+                    ChicImage.DrawPreviewImage(c, icon);
+
+                    //Draw Text Background
+                    ChicText.DrawBackground(c, icon);
+                    //Display Name
+                    ChicText.DrawDisplayName(c, icon);
+
+                    if (!icon.ShortDescription.Equals(icon.DisplayName))
+                    {
+                        //Draw Item Type
+                        ChicText.DrawToBottom(c, icon, SKTextAlign.Left, icon.ShortDescription.ToUpper());
+                    }
+
+                    ChicText.DrawVbuck(c, icon);
+
+                    {
+                        string priceText = icon.Price > 0 ? icon.Price.ToString("N0", CultureInfo.GetCultureInfo("en-US")) : "FREE";
+
+                        ChicText.DrawToBottom(c, icon, SKTextAlign.Right, priceText);
+                    }
+
+                    //Watermark
+                    //ChicWatermark.DrawWatermark(c, icon.Size, shadow: true); // watermark should only be applied on icons with width = 512
+                    //ChicWatermark.DrawWatermark(c, icon, 18, "@ChicIsCoolio", 2);
+                    //ChicWatermark.DrawChicFace(c, SKColors.White, icon.Size - 120);
+
+                    //Shows the image
+                    //ImageBoxVm.imageBoxViewModel.Set(ret, assetName);
                 }
 
-                ChicText.DrawVbuck(c, icon);
-
+                using (var c = new SKCanvas(bitmap))
                 {
-                    string priceText = icon.Price > 0 ? icon.Price.ToString("N0", CultureInfo.GetCultureInfo("en-US")) : "FREE";
+                    c.DrawBitmap(bmp, 50, 50,
+                        new SKPaint
+                        {
+                            IsAntialias = true,
+                            FilterQuality = SKFilterQuality.High,
+                            ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 20, 20, SKColors.Black)
+                        });
 
-                    ChicText.DrawToBottom(c, icon, SKTextAlign.Right, priceText);
+                    if (icon.HasBanner) ChicBanner.DrawBanner(c, icon);
                 }
-
-                //Draw Flags
-                //ChicUserFacingFlags.DrawUserFacingFlags(c, icon);
-
-                //Watermark
-                //ChicWatermark.DrawWatermark(c, icon.Size, shadow: true); // watermark should only be applied on icons with width = 512
-                //ChicWatermark.DrawWatermark(c, icon, 18, "@ChicIsCoolio", 2);
-                //ChicWatermark.DrawChicFace(c, SKColors.White, icon.Size - 120);
-
-                //Shows the image
-                //ImageBoxVm.imageBoxViewModel.Set(ret, assetName);
             }
+
+
 
             return bitmap;
         }

@@ -363,3 +363,6 @@ FodyWeavers.xsd
 
 # repl.it .env file
 .env
+
+# Output (no need)
+Output/

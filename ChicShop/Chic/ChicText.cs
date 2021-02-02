@@ -129,7 +129,7 @@ namespace ChicShop.Chic
                 new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High
+                    FilterQuality = SKFilterQuality.High,
                 });
         }
     }

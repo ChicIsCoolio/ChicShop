@@ -10,9 +10,12 @@ namespace ChicShop.Chic
         public SKColor[] RarityColors;
         public string DisplayName;
         public string ShortDescription;
+        public string Banner;
         public int Price;
         public int Width = 1024;
         public int Height = 1024;
+
+        public bool HasBanner => !string.IsNullOrWhiteSpace(Banner);
 
         public void Dispose()
         {
@@ -21,6 +24,7 @@ namespace ChicShop.Chic
 
             DisplayName = "";
             ShortDescription = "";
+            Banner = "";
             Price = 0;
             Width = 0;
             Height = 0;
