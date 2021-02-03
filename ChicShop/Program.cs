@@ -32,17 +32,15 @@ namespace ChicShop
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(2);//shop.ShopDate.AddDays(1);
+            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1);
             shop = null;
-            GC.Collect();
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
                 GenerateShop();
-                Console.WriteLine("\"Generted\": " + time);
+                Console.WriteLine("\"Generated\": " + time);
 
-                //Process.Start("/bin/bash", "/home/runner/ChicShop/dotnet run -p /home/runner/ChicShop/ChicShop");
-                /*Environment.Exit(0);*/reschedule(time.AddDays(1));
+                reschedule(DateTimeOffset.Now.AddSeconds(5));
             });
 
             await Task.Delay(-1);        
@@ -53,6 +51,9 @@ namespace ChicShop
             Directory.CreateDirectory($"{Root}Cache");
 
             Console.WriteLine("Generating Shop...");
+
+            var watch = new Stopwatch();
+            watch.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
@@ -79,14 +80,18 @@ namespace ChicShop
                 }
             }
 
+            watch.Stop();
+            Console.WriteLine($"Done in {watch.Elapsed} ms");
+
             Directory.Delete($"{Root}Cache", true);
             shop = null;
             entries = null;
             bitmaps = null;
             sections = null;
-            GC.Collect();
+            watch = null;
 
-            Console.WriteLine($"Done");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         public SKBitmap A(List<Section> sections, Dictionary<Section, BitmapData> bitmaps)
@@ -123,7 +128,7 @@ namespace ChicShop
                         c.DrawBitmap(bitmap, 0, y);
                         y += bitmap.Height;
                     }
-                });
+;                });
 
                 using (var textPaint = new SKPaint
                 {
@@ -139,12 +144,13 @@ namespace ChicShop
 
                     c.DrawText(sacText, (merge.Width - textPaint.MeasureText(sacText)) / 2,
                         merge.Height - 50, textPaint);
+
+                    sacText = "";
                 }
             }
 
             sections = null;
             bitmaps = null;
-            GC.Collect();
 
             return merge;
         }
@@ -365,11 +371,14 @@ namespace ChicShop
                         c.DrawText(section.DisplayName, 100, 150, paint);
                 }
 
+                sectionEntries = null;
+
                 sectionsBitmaps.Add(section, SaveToCache(bitmap, $"{Root}/Cache/{section.SectionId}.png"));
             }
 
             content = null;
-            GC.Collect();
+            sections = null;
+            entries = null;
 
             return sectionsBitmaps;
         }
@@ -397,8 +406,6 @@ namespace ChicShop
                     entr.Add(entry, SaveToCache(ChicIcon.GenerateIcon(icon), $"{Root}Cache/{item.Id}{(entry.IsBundle ? "_Bundle" : "")}.png"));
                 }
             }
-
-            GC.Collect();
         }
 
         public BitmapData SaveToCache(SKBitmap bitmap, string path, bool dispose = true)
@@ -422,8 +429,6 @@ namespace ChicShop
             }
 
             if (dispose) bitmap.Dispose();
-
-            GC.Collect();
 
             return d;
         }

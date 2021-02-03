@@ -133,8 +133,6 @@ namespace ChicShop.Chic
             var two = (int)(icon.Height * ChicRatios.Get(2));
             var vbuckSize = (int)(icon.Height * ChicRatios.Get(27.5f));
 
-            Console.WriteLine(Program.Root + "Resources/T-VBuck-128.png");
-
             using (var paint = new SKPaint
             {
                 IsAntialias = true,
