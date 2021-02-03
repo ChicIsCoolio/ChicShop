@@ -1,4 +1,5 @@
 using System;
+using System.Windows;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -31,7 +32,7 @@ namespace ChicShop
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = shop.ShopDate.AddDays(1);
+            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(2);//shop.ShopDate.AddDays(1);
             shop = null;
             GC.Collect();
 
@@ -40,7 +41,8 @@ namespace ChicShop
                 GenerateShop();
                 Console.WriteLine("\"Generted\": " + time);
 
-                reschedule(time.AddDays(1));
+                //Process.Start("/bin/bash", "/home/runner/ChicShop/dotnet run -p /home/runner/ChicShop/ChicShop");
+                /*Environment.Exit(0);*/reschedule(time.AddDays(1));
             });
 
             await Task.Delay(-1);        

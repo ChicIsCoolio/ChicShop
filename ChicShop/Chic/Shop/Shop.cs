@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 
@@ -83,10 +83,10 @@ namespace ChicShop.Chic.Shop
         public bool IsBundle => Bundle != null;
     }
 
-    public class EntryComparer : IComparer<StorefrontEntry>
+    /*public class EntryComparer : IComparer<StorefrontEntry>
     {
         
-    }
+    }*/
 
     public class EntryBundle
     {
