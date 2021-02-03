@@ -19,28 +19,28 @@ namespace ChicShop
     public class Program
     {
         public static string Root = "/home/runner/ChicShop/";
-        public WebServer Server;
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
-            Directory.CreateDirectory($"{Root}/Cache");
+            Console.WriteLine("Running");
 
-            Server = new WebServer();
-            Server.Start();
+            WebServer.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1);
+            DateTimeOffset time = shop.ShopDate.AddDays(1);
+            shop = null;
+            GC.Collect();
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
                 GenerateShop();
                 Console.WriteLine("\"Generted\": " + time);
 
-                //reschedule(time.AddSeconds(10));
+                reschedule(time.AddDays(1));
             });
 
             await Task.Delay(-1);        
@@ -48,9 +48,9 @@ namespace ChicShop
 
         public void GenerateShop()
         {
+            Directory.CreateDirectory($"{Root}Cache");
+
             Console.WriteLine("Generating Shop...");
-            var watch = new Stopwatch();
-            watch.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
@@ -77,10 +77,14 @@ namespace ChicShop
                 }
             }
 
+            Directory.Delete($"{Root}Cache", true);
+            shop = null;
+            entries = null;
+            bitmaps = null;
+            sections = null;
             GC.Collect();
 
-            watch.Stop();
-            Console.WriteLine($"Done in {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Done");
         }
 
         public SKBitmap A(List<Section> sections, Dictionary<Section, BitmapData> bitmaps)
@@ -135,6 +139,10 @@ namespace ChicShop
                         merge.Height - 50, textPaint);
                 }
             }
+
+            sections = null;
+            bitmaps = null;
+            GC.Collect();
 
             return merge;
         }
@@ -358,6 +366,9 @@ namespace ChicShop
                 sectionsBitmaps.Add(section, SaveToCache(bitmap, $"{Root}/Cache/{section.SectionId}.png"));
             }
 
+            content = null;
+            GC.Collect();
+
             return sectionsBitmaps;
         }
 
@@ -384,9 +395,11 @@ namespace ChicShop
                     entr.Add(entry, SaveToCache(ChicIcon.GenerateIcon(icon), $"{Root}Cache/{item.Id}{(entry.IsBundle ? "_Bundle" : "")}.png"));
                 }
             }
+
+            GC.Collect();
         }
 
-        public BitmapData SaveToCache(SKBitmap bitmap, string path)
+        public BitmapData SaveToCache(SKBitmap bitmap, string path, bool dispose = true)
         {
             BitmapData d = new BitmapData
             {
@@ -395,19 +408,20 @@ namespace ChicShop
                 Height = bitmap.Height
             };
 
-            using (bitmap)
+            using (var image = SKImage.FromBitmap(bitmap))
             {
-                using (var image = SKImage.FromBitmap(bitmap))
+                using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                 {
-                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var stream = File.OpenWrite(path))
                     {
-                        using (var stream = File.OpenWrite(path))
-                        {
-                            data.SaveTo(stream);
-                        }
+                        data.SaveTo(stream);
                     }
                 }
             }
+
+            if (dispose) bitmap.Dispose();
+
+            GC.Collect();
 
             return d;
         }
@@ -415,16 +429,23 @@ namespace ChicShop
         public SKBitmap LoadFromCache(BitmapData data) => LoadFromCache(data.Path);
         public SKBitmap LoadFromCache(string path) => SKBitmap.Decode(path);
 
+        public bool IsInCache(string path) => File.Exists(path);
+
         public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUrl(new Uri(url));
         public SKBitmap GetBitmapFromUrl(Uri url)
         {
+            if (IsInCache($"{Root}Cache/{url.ToString().Split('/').Last()}")) return LoadFromCache($"{Root}Cache/{url.ToString().Split('/').Last()}");
+
             using (var client = new HttpClient())
             {
                 var bytes = client.GetByteArrayAsync(url).Result;
 
                 using (var stream = new MemoryStream(bytes))
                 {
-                    return SKBitmap.Decode(stream);
+                    SKBitmap bitmap = SKBitmap.Decode(stream);
+
+                    SaveToCache(bitmap, $"{Root}Cache/{url.ToString().Split('/').Last()}", false);
+                    return bitmap;
                 }
             }
         }

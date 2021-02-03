@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,9 +12,9 @@ namespace ChicShop.Chic.WebServer
 {
     public class WebServer
     {
-        public void Start()
+        public static void Start()
         {
-            
+            Process.Start("node", $"{Program.Root}Server/server.js");
         }
 
         /*public void StartListen()
