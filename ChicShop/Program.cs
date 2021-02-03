@@ -32,15 +32,18 @@ namespace ChicShop
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1);
+            DateTimeOffset time = shop.ShopDate.AddDays(1);
             shop = null;
+
+            int generated = 0;
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
                 GenerateShop();
                 Console.WriteLine("\"Generated\": " + time);
+                Console.WriteLine($"Number: {++generated}");
 
-                reschedule(DateTimeOffset.Now.AddSeconds(5));
+                reschedule(time.AddDays(1));
             });
 
             await Task.Delay(-1);        
@@ -128,6 +131,8 @@ namespace ChicShop
                         c.DrawBitmap(bitmap, 0, y);
                         y += bitmap.Height;
                     }
+
+                    GC.Collect();
 ;                });
 
                 using (var textPaint = new SKPaint
@@ -347,6 +352,8 @@ namespace ChicShop
                                 c.DrawBitmap(b, x, y, paint);
                         }
 
+                        GC.Collect();
+
                         x += 768 + 100 /*+ 50*/;
 
                         if (i + 1 >= row + 1 * maxEntriesPerRow)
@@ -379,6 +386,8 @@ namespace ChicShop
             content = null;
             sections = null;
             entries = null;
+
+            GC.Collect();
 
             return sectionsBitmaps;
         }
@@ -429,6 +438,8 @@ namespace ChicShop
             }
 
             if (dispose) bitmap.Dispose();
+
+            GC.Collect();
 
             return d;
         }

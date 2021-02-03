@@ -1,7 +1,9 @@
 var express = require("express");
 var app = express();
 
-app.get('', (req, res) => {
+app.use(express.static("/home/runner/ChicShop/Output"));
+
+app.get('/', (req, res) => {
     res.send("Hello World");
 });
 
