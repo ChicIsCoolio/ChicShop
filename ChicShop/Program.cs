@@ -26,8 +26,6 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
-
             Directory.CreateDirectory($"{Root}/Cache");
 
             Server = new WebServer();
