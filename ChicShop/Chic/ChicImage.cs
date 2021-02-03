@@ -17,20 +17,13 @@ namespace ChicShop.Chic
             Console.WriteLine(icon.Width);
             Console.WriteLine(icon.Height);
 
-            c.DrawBitmap(icon.IconImage, new SKRect(x, y, x + icon.Height, y + icon.Height),
-                new SKPaint
-                {
-                    IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
-                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black)
-                });
+            using (var filter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black))
+            using (var paint = new SKPaint
+            {
+                IsAntialias = true,
+                FilterQuality = SKFilterQuality.High,
+                ImageFilter = filter
+            }) c.DrawBitmap(icon.IconImage, new SKRect(x, y, x + icon.Height, y + icon.Height), paint);
         }
-            /*c.DrawBitmap(icon.IconImage, icon.Width - icon.IconImage.Width, icon.Height - icon.IconImage.Height
-                new SKPaint
-                {
-                    IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
-                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 5, 5, SKColors.Black)
-                });*/
     }
 }

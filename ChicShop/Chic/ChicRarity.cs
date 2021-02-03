@@ -50,25 +50,25 @@ namespace ChicShop.Chic
                 int x = (icon.Width - size) / 2;
                 int y = (icon.Height - size) / 2;
 
-                c.DrawBitmap(icon.RarityBackgroundImage, new SKRect(x, y, size, size),
-                    new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true });
+                using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+                    c.DrawBitmap(icon.RarityBackgroundImage, new SKRect(x, y, size, size), paint);
             }
             else
             {
-                c.DrawRect(new SKRect(0, 0, icon.Width, icon.Height),
-                    new SKPaint
-                    {
-                        IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
-                        Shader = SKShader.CreateRadialGradient(
+                using (var shader = SKShader.CreateRadialGradient(
                             new SKPoint(icon.Width / 2, icon.Height / 2),
                             icon.Width / 5 * 4,
                             new SKColor[] {
                                 new SKColor(30, 30, 30),
                                 new SKColor(50, 50, 50)
                             },
-                            SKShaderTileMode.Clamp)
-                    });
+                            SKShaderTileMode.Clamp))
+                using (var paint = new SKPaint
+                {
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    Shader = shader
+                }) c.DrawRect(new SKRect(0, 0, icon.Width, icon.Height), paint);
             }
         }
     }

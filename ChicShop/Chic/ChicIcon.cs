@@ -54,13 +54,12 @@ namespace ChicShop.Chic
 
                 using (var c = new SKCanvas(bitmap))
                 {
-                    c.DrawBitmap(bmp, 50, 50,
-                        new SKPaint
-                        {
-                            IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High,
-                            ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 20, 20, SKColors.Black)
-                        });
+                    using (var paint = new SKPaint
+                    {
+                        IsAntialias = true,
+                        FilterQuality = SKFilterQuality.High,
+                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 20, 20, SKColors.Black)
+                    }) c.DrawBitmap(bmp, 50, 50, paint);
 
                     if (icon.HasBanner) ChicBanner.DrawBanner(c, icon);
                 }

@@ -26,21 +26,23 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            //Server = new WebServer();
-            //Server.Start();
+            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
+
+            Directory.CreateDirectory($"{Root}/Cache");
+
+            Server = new WebServer();
+            Server.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
             DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1);
-
-Console.WriteLine(time.ToString("HH"));
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
                 GenerateShop();
                 Console.WriteLine("\"Generted\": " + time);
 
-                reschedule(time.AddSeconds(10));
+                //reschedule(time.AddSeconds(10));
             });
 
             await Task.Delay(-1);        
@@ -54,17 +56,14 @@ Console.WriteLine(time.ToString("HH"));
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            Dictionary<StorefrontEntry, SKBitmap> entries = new Dictionary<StorefrontEntry, SKBitmap>();
+            Dictionary<StorefrontEntry, BitmapData> entries = new Dictionary<StorefrontEntry, BitmapData>();
 
             if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries, ref entries);
-            GC.Collect();
             if (shop.HasDaily) GenerateEntries(shop.Daily.Entries, ref entries);
-            GC.Collect();
             if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries, ref entries);
-            GC.Collect();
             if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries, ref entries);
-Console.WriteLine("still alive");
-            Dictionary<Section, SKBitmap> bitmaps = GenerateSections(entries);
+
+            Dictionary<Section, BitmapData> bitmaps = GenerateSections(entries);
             List<Section> sections = bitmaps.Keys.ToList();
 
             sections.Sort(SectionComparer.Comparer);
@@ -80,11 +79,13 @@ Console.WriteLine("still alive");
                 }
             }
 
+            GC.Collect();
+
             watch.Stop();
             Console.WriteLine($"Done in {watch.ElapsedMilliseconds} ms");
         }
 
-        public SKBitmap A(List<Section> sections, Dictionary<Section, SKBitmap> bitmaps)
+        public SKBitmap A(List<Section> sections, Dictionary<Section, BitmapData> bitmaps)
         {
             int width = 0;
             int height = 250;
@@ -96,50 +97,51 @@ Console.WriteLine("still alive");
                 height += b.Height;
             });
 
-            /*using (*/
-            var merge = new SKBitmap(width, height);//)
+            var merge = new SKBitmap(width, height);
+
+            using (var c = new SKCanvas(merge))
             {
-                using (var c =new SKCanvas(merge))
+                int y = 0;
+
+                using (var paint = new SKPaint
                 {
-                    int y = 0;
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    Color = new SKColor(40, 40, 40)
+                }) c.DrawRect(0, 0, merge.Width, merge.Height, paint);
 
-                    c.DrawRect(0, 0, merge.Width, merge.Height,
-                            new SKPaint
-                            {
-                                IsAntialias = true,
-                                FilterQuality = SKFilterQuality.High,
-                                Color = new SKColor(40, 40, 40)
-                            });
+                sections.ToList().ForEach(section =>
+                {
+                    var bitmapData = bitmaps.First(predicate: x => x.Key.SectionId == section.SectionId).Value;
 
-                    sections.ToList().ForEach(section =>
+                    using (var bitmap = LoadFromCache(bitmapData))
                     {
-                        var bitmap = bitmaps.First(predicate: x => x.Key.SectionId == section.SectionId).Value;
-
                         c.DrawBitmap(bitmap, 0, y);
                         y += bitmap.Height;
-                    });
+                    }
+                });
 
-                    var textPaint = new SKPaint
-                    {
-                        IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
-                        TextSize = 200,
-                        Color = SKColors.White,
-                        Typeface = ChicTypefaces.BurbankBigRegularBlack,
-                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
-                    };
-
+                using (var textPaint = new SKPaint
+                {
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    TextSize = 200,
+                    Color = SKColors.White,
+                    Typeface = ChicTypefaces.BurbankBigRegularBlack,
+                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
+                })
+                {
                     var sacText = "Code 'Chic' #Ad";
 
                     c.DrawText(sacText, (merge.Width - textPaint.MeasureText(sacText)) / 2,
                         merge.Height - 50, textPaint);
                 }
-
-                return merge;
             }
+
+            return merge;
         }
 
-        public SKBitmap B(List<Section> sections, Dictionary<Section, SKBitmap> bitmaps)
+        /*public SKBitmap B(List<Section> sections, Dictionary<Section, SKBitmap> bitmaps)
         {
             List<int> featured = new List<int>();
             List<int> others = new List<int>();
@@ -186,76 +188,74 @@ Console.WriteLine("still alive");
             fullHeight = ratio * 9;
             fullWidth = ratio * 16;
 
-            /*using (*/
-            var full = new SKBitmap(fullWidth, fullHeight);//)
+            var full = new SKBitmap(fullWidth, fullHeight);
+            
+            using (var merge = new SKBitmap(width, height))
             {
-                using (var merge = new SKBitmap(width, height))
+                using (var c = new SKCanvas(merge))
                 {
-                    using (var c = new SKCanvas(merge))
-                    {
-                        int y = 0;
-                        int x = 0;
-                        int i = 0;
+                    int y = 0;
+                    int x = 0;
+                    int i = 0;
 
-                        sections.ToList().ForEach(section =>
+                    sections.ToList().ForEach(section =>
+                    {
+                        var bitmap = bitmaps.First(predicate: x => x.Key.SectionId == section.SectionId).Value;
+
+                        c.DrawBitmap(bitmap, x, y);
+                        y += bitmap.Height;
+                        i++;
+
+                        if (i == featuredCount)
                         {
-                            var bitmap = bitmaps.First(predicate: x => x.Key.SectionId == section.SectionId).Value;
+                            y = 0;
+                            x += width / columnCount;
+                        }
+                    });
+                }
 
-                            c.DrawBitmap(bitmap, x, y);
-                            y += bitmap.Height;
-                            i++;
-
-                            if (i == featuredCount)
-                            {
-                                y = 0;
-                                x += width / columnCount;
-                            }
-                        });
-                    }
-
-                    using (var c = new SKCanvas(full))
-                    {
-                        c.DrawRect(0, 0, full.Width, full.Height,
-                            new SKPaint
-                            {
-                                IsAntialias = true,
-                                FilterQuality = SKFilterQuality.High,
-                                Color = new SKColor(40, 40, 40)
-                            });
-
-                        c.DrawBitmap(merge, (full.Width - merge.Width) / 2, 0,
-                            new SKPaint
-                            {
-                                IsAntialias = true,
-                                FilterQuality = SKFilterQuality.High
-                            });
-
-                        var textPaint = new SKPaint
+                using (var c = new SKCanvas(full))
+                {
+                    c.DrawRect(0, 0, full.Width, full.Height,
+                        new SKPaint
                         {
                             IsAntialias = true,
                             FilterQuality = SKFilterQuality.High,
-                            TextSize = 200,
-                            Color = SKColors.White,
-                            Typeface = ChicTypefaces.BurbankBigRegularBlack,
-                            ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
-                        };
+                            Color = new SKColor(40, 40, 40)
+                        });
 
-                        var sacText = "Code 'Chic' #Ad";
+                    c.DrawBitmap(merge, (full.Width - merge.Width) / 2, 0,
+                        new SKPaint
+                        {
+                            IsAntialias = true,
+                            FilterQuality = SKFilterQuality.High
+                        });
 
-                        c.DrawText(sacText, (full.Width - textPaint.MeasureText(sacText)) / 2,
-                            full.Height - 50, textPaint);
-                    }
+                    var textPaint = new SKPaint
+                    {
+                        IsAntialias = true,
+                        FilterQuality = SKFilterQuality.High,
+                        TextSize = 200,
+                        Color = SKColors.White,
+                        Typeface = ChicTypefaces.BurbankBigRegularBlack,
+                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
+                    };
 
-                    return full;
+                    var sacText = "Code 'Chic' #Ad";
+
+                    c.DrawText(sacText, (full.Width - textPaint.MeasureText(sacText)) / 2,
+                        full.Height - 50, textPaint);
                 }
-            }
-        }
 
-        public Dictionary<Section, SKBitmap> GenerateSections(Dictionary<StorefrontEntry, SKBitmap> entries)
+                return full;
+            }
+        }*/
+
+        public Dictionary<Section, BitmapData> GenerateSections(Dictionary<StorefrontEntry, BitmapData> entries)
         {
             int maxEntriesPerRow = 6;
 
-            Dictionary<Section, SKBitmap> sectionsBitmaps = new Dictionary<Section, SKBitmap>();
+            Dictionary<Section, BitmapData> sectionsBitmaps = new Dictionary<Section, BitmapData>();
 
             var content = FortniteContent.Get();
 
@@ -263,9 +263,22 @@ Console.WriteLine("still alive");
 
             entries.Keys.ToList().ForEach(key =>
             {
-                if (!sections.Contains(x => x.SectionId == key.SectionId
-                    && content.ShopSections.Contains(key.SectionId)))
-                    sections.Add(content.ShopSections.Get(key.SectionId));
+                if (!sections.Contains(x => x.SectionId == key.SectionId))
+                {
+                    if (content.ShopSections.Contains(key.SectionId))
+                    {
+                        sections.Add(content.ShopSections.Get(key.SectionId));
+                    }
+                    else
+                    {
+                        sections.Add(new Section
+                        {
+                            SectionId = key.SectionId,
+                            DisplayName = "",
+                            LandingPriority = 49
+                        });
+                    }
+                }
             });
 
             List<int> entriesCount = new List<int>();
@@ -286,7 +299,7 @@ Console.WriteLine("still alive");
 
             foreach (var section in sections)
             {
-                Dictionary<StorefrontEntry, SKBitmap> sectionEntries = new Dictionary<StorefrontEntry, SKBitmap>();
+                Dictionary<StorefrontEntry, BitmapData> sectionEntries = new Dictionary<StorefrontEntry, BitmapData>();
 
                 entries.ToList().ForEach(entry =>
                 {
@@ -299,13 +312,12 @@ Console.WriteLine("still alive");
             
                 using (SKCanvas c = new SKCanvas(bitmap))
                 {
-                    c.DrawRect(0, 0, bitmap.Width, bitmap.Height,
-                        new SKPaint
-                        {
-                            IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High,
-                            Color = new SKColor(40, 40, 40)
-                        });
+                    using (var paint = new SKPaint
+                    {
+                        IsAntialias = true,
+                        FilterQuality = SKFilterQuality.High,
+                        Color = new SKColor(40, 40, 40)
+                    }) c.DrawRect(0, 0, bitmap.Width, bitmap.Height, paint);
 
                     int x = 50;//100;
                     int y = extraHeight;
@@ -315,13 +327,11 @@ Console.WriteLine("still alive");
                     {
                         var entry = sectionEntries.ToList()[i];
 
-                        c.DrawBitmap(entry.Value, x, y,
-                            new SKPaint
-                            {
-                                IsAntialias = true,
-                                FilterQuality = SKFilterQuality.High,
-                            });
-                            
+                        using (var b = LoadFromCache(entry.Value))
+                        {
+                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.High })
+                                c.DrawBitmap(b, x, y, paint);
+                        }
 
                         x += 768 + 100 /*+ 50*/;
 
@@ -334,27 +344,26 @@ Console.WriteLine("still alive");
                         y = extraHeight + (1024 + 100 /*+ 50*/) * row;
                     }
 
-                    if (section.HasName)
-                        c.DrawText(section.DisplayName, 100, 150,
-                        new SKPaint
-                        {
-                            IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High,
-                            Color = SKColors.White,
-                            TextSize = 100,
-                            Typeface = ChicTypefaces.BurbankBigRegularBlack,
-                            TextAlign = SKTextAlign.Left,
-                            ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
-                        });
+                    using (var paint = new SKPaint
+                    {
+                        IsAntialias = true,
+                        FilterQuality = SKFilterQuality.High,
+                        Color = SKColors.White,
+                        TextSize = 100,
+                        Typeface = ChicTypefaces.BurbankBigRegularBlack,
+                        TextAlign = SKTextAlign.Left,
+                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
+                    }) if (section.HasName)
+                        c.DrawText(section.DisplayName, 100, 150, paint);
                 }
 
-                sectionsBitmaps.Add(section, bitmap);
+                sectionsBitmaps.Add(section, SaveToCache(bitmap, $"{Root}/Cache/{section.SectionId}.png"));
             }
 
             return sectionsBitmaps;
         }
 
-        public void GenerateEntries(StorefrontEntry[] entries, ref Dictionary<StorefrontEntry, SKBitmap> entr)
+        public void GenerateEntries(StorefrontEntry[] entries, ref Dictionary<StorefrontEntry, BitmapData> entr)
         {
             foreach (var entry in entries)
             {
@@ -374,10 +383,39 @@ Console.WriteLine("still alive");
                 {
                     ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
 
-                    entr.Add(entry, ChicIcon.GenerateIcon(icon));
+                    entr.Add(entry, SaveToCache(ChicIcon.GenerateIcon(icon), $"{Root}Cache/{item.Id}{(entry.IsBundle ? "_Bundle" : "")}.png"));
                 }
             }
         }
+
+        public BitmapData SaveToCache(SKBitmap bitmap, string path)
+        {
+            BitmapData d = new BitmapData
+            {
+                Path = path,
+                Width = bitmap.Width,
+                Height = bitmap.Height
+            };
+
+            using (bitmap)
+            {
+                using (var image = SKImage.FromBitmap(bitmap))
+                {
+                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                    {
+                        using (var stream = File.OpenWrite(path))
+                        {
+                            data.SaveTo(stream);
+                        }
+                    }
+                }
+            }
+
+            return d;
+        }
+
+        public SKBitmap LoadFromCache(BitmapData data) => LoadFromCache(data.Path);
+        public SKBitmap LoadFromCache(string path) => SKBitmap.Decode(path);
 
         public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUrl(new Uri(url));
         public SKBitmap GetBitmapFromUrl(Uri url)
