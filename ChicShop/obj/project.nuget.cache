@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "FqbsmeYAbuIqRTuNLoYyo19Ux6QOl/bgtq3ZD55THmdYJwp//7iPYC4nYeaPsRmhrQuC/VoVVM8KXpnjqlgxrQ==",
+  "dgSpecHash": "iqeUxTqs2dOUs5h4kE14khdYGBvUpB94JlpsYZztIaOlLUYcbta91qqNmATCN5bBb+gqWvbeiSxqfYK86KkSqQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
+  "projectFilePath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Hopík\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\restsharp\\106.11.7\\restsharp.106.11.7.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp\\2.80.2\\skiasharp.2.80.2.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp.nativeassets.linux\\2.80.2\\skiasharp.nativeassets.linux.2.80.2.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\system.reactive\\5.0.0\\system.reactive.5.0.0.nupkg.sha512"
+    "/home/runner/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/restsharp/106.11.7/restsharp.106.11.7.nupkg.sha512",
+    "/home/runner/.nuget/packages/skiasharp/2.80.2/skiasharp.2.80.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/skiasharp.nativeassets.linux/2.80.2/skiasharp.nativeassets.linux.2.80.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.reactive/5.0.0/system.reactive.5.0.0.nupkg.sha512"
   ],
   "logs": []
 }

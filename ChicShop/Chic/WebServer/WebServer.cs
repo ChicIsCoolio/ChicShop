@@ -11,26 +11,15 @@ namespace ChicShop.Chic.WebServer
 {
     public class WebServer
     {
-        public int Port = 5050;
-
-        private TcpListener listener;
-
-        public WebServer(int port = 5050)
-        {
-            Port = port;
-        }
-
         public void Start()
         {
-            listener = new TcpListener(IPAddress.Any, Port);
-            listener.Start();
-
-            var thread = new Thread(new ThreadStart(StartListen));
-            thread.Start();
+            
         }
 
-        public void StartListen()
+        /*public void StartListen()
         {
+            Console.WriteLine("Server running on port: " + Port);
+
             while (true)
             {
                 Socket socket = listener.AcceptSocket();
@@ -74,6 +63,6 @@ namespace ChicShop.Chic.WebServer
             {
                 socket.Send(data, data.Length, 0);
             }
-        }
+        }*/
     }
 }

@@ -26,18 +26,21 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            Server = new WebServer();
-            Server.Start();
+            //Server = new WebServer();
+            //Server.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = shop.ShopDate.AddDays(1);
+            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1);
 
-            Scheduler.Default.Schedule(DateTimeOffset.Now.AddSeconds(5), reschedule =>
+Console.WriteLine(time.ToString("HH"));
+
+            Scheduler.Default.Schedule(time, reschedule =>
             {
                 GenerateShop();
+                Console.WriteLine("\"Generted\": " + time);
 
-                reschedule(time.AddSeconds(5));
+                reschedule(time.AddSeconds(10));
             });
 
             await Task.Delay(-1);        
@@ -54,10 +57,13 @@ namespace ChicShop
             Dictionary<StorefrontEntry, SKBitmap> entries = new Dictionary<StorefrontEntry, SKBitmap>();
 
             if (shop.HasFeatured) GenerateEntries(shop.Featured.Entries, ref entries);
+            GC.Collect();
             if (shop.HasDaily) GenerateEntries(shop.Daily.Entries, ref entries);
+            GC.Collect();
             if (shop.HasSpecialFeatured) GenerateEntries(shop.SpecialFeatured.Entries, ref entries);
+            GC.Collect();
             if (shop.HasSpecialDaily) GenerateEntries(shop.SpecialDaily.Entries, ref entries);
-
+Console.WriteLine("still alive");
             Dictionary<Section, SKBitmap> bitmaps = GenerateSections(entries);
             List<Section> sections = bitmaps.Keys.ToList();
 
@@ -315,6 +321,7 @@ namespace ChicShop
                                 IsAntialias = true,
                                 FilterQuality = SKFilterQuality.High,
                             });
+                            
 
                         x += 768 + 100 /*+ 50*/;
 
