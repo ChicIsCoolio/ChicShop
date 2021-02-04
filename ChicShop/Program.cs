@@ -14,6 +14,9 @@ using System.Linq;
 using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using ChicShop.Chic.WebServer;
+using System.Runtime.InteropServices.ComTypes;
+using System.Collections.Immutable;
+using ChicShop.Chic.Twitter;
 
 namespace ChicShop
 {
@@ -21,18 +24,26 @@ namespace ChicShop
     {
         public static string Root = "/home/runner/ChicShop/";
 
+        public int EntryHeight { get; private set; } = 512;
+        public int EntryWidth { get; private set; } = 384;
+
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
+            if (args.Contains(arg => arg.Contains("entryWidth=")))
+                EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
+            if (args.Contains(arg => arg.Contains("entryWidth=")))
+                EntryWidth = int.Parse(args.First(arg => arg.Contains("entryWidth=")).Split('=')[1]);
+
             Console.WriteLine("Running");
 
             WebServer.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
 
-            DateTimeOffset time = shop.ShopDate.AddDays(1);
+            DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
             shop = null;
 
             int generated = 0;
@@ -59,6 +70,7 @@ namespace ChicShop
             watch.Start();
 
             var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
+            DateTime date = shop.ShopDate;
 
             Dictionary<StorefrontEntry, BitmapData> entries = new Dictionary<StorefrontEntry, BitmapData>();
 
@@ -72,25 +84,33 @@ namespace ChicShop
 
             sections.Sort(SectionComparer.Comparer);
 
+            shop = null;
+            entries = null;
+            GC.Collect();
+
             using (var full = A(sections, bitmaps))
             {
-                using (var data = SKImage.FromBitmap(full).Encode(SKEncodedImageFormat.Png, 100))
+                sections = null;
+                bitmaps = null;
+                GC.Collect();
+
+                using (var data = SKImage.FromBitmap(full).Encode(SKEncodedImageFormat.Jpeg, 100))
                 {
-                    using (var stream = File.OpenWrite(Root + $"Output//{shop.ShopDate.ToString("dd-MM-yyyy")}.png"))
+                    using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
                     {
                         data.SaveTo(stream);
                     }
                 }
+
+                string status = "test2";
+
+                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
             }
 
             watch.Stop();
             Console.WriteLine($"Done in {watch.Elapsed} ms");
 
             Directory.Delete($"{Root}Cache", true);
-            shop = null;
-            entries = null;
-            bitmaps = null;
-            sections = null;
             watch = null;
 
             GC.Collect();
@@ -139,16 +159,21 @@ namespace ChicShop
                 {
                     IsAntialias = true,
                     FilterQuality = SKFilterQuality.High,
-                    TextSize = 200,
+                    TextSize = (int)(ChicRatios.Get1024(200) * EntryHeight),
                     Color = SKColors.White,
                     Typeface = ChicTypefaces.BurbankBigRegularBlack,
                     ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
                 })
                 {
-                    var sacText = "Code 'Chic' #Ad";
+                    var sacText = "Code 'Chic'\n#Ad";
+                    int textWidth = (int)textPaint.MeasureText(sacText);
 
-                    c.DrawText(sacText, (merge.Width - textPaint.MeasureText(sacText)) / 2,
-                        merge.Height - 50, textPaint);
+                    int left = (merge.Width - textWidth) / 2;
+                    int top = merge.Height - (int)(ChicRatios.Get1024(200) * EntryHeight * 2);
+                    int right = left + textWidth;
+                    int bottom = merge.Height - (int)(ChicRatios.Get1024(200) * EntryHeight);
+
+                    ChicText.DrawMultilineText(c, sacText, new SKRect(left, top, right, bottom), textPaint);
 
                     sacText = "";
                 }
@@ -316,18 +341,26 @@ namespace ChicShop
 
             maxEntriesPerRow = Math.Clamp(entriesCount.Max(), 0, maxEntriesPerRow);
 
+            int th = (int)(ChicRatios.Get1024(200) * EntryHeight);
+            int hf = (int)(ChicRatios.Get1024(150) * EntryHeight);
+            int h = (int)(ChicRatios.Get1024(100) * EntryHeight);
+            int f = (int)(ChicRatios.Get1024(50) * EntryHeight);
+
             foreach (var section in sections)
             {
-                Dictionary<StorefrontEntry, BitmapData> sectionEntries = new Dictionary<StorefrontEntry, BitmapData>();
+                Dictionary<StorefrontEntry, BitmapData> se = new Dictionary<StorefrontEntry, BitmapData>();
 
                 entries.ToList().ForEach(entry =>
                 {
-                    if (entry.Key.SectionId == section.SectionId) sectionEntries.Add(entry);
+                    if (entry.Key.SectionId == section.SectionId) se.Add(entry);
                 });
 
-                int extraHeight = section.HasName ? 200 : 0;
+                Dictionary<StorefrontEntry, BitmapData> sectionEntries = new Dictionary<StorefrontEntry, BitmapData>();
+                sectionEntries.Add(se.ToList().Sort(EntryComparer.Comparer, 0));
 
-                SKBitmap bitmap = new SKBitmap(100/*150*/ + maxEntriesPerRow * (768 + 100 /*+ 50*/), extraHeight + (int)Math.Ceiling((decimal)sectionEntries.Count / maxEntriesPerRow) * (1024 + 100 /*+ 50*/));
+                int extraHeight = section.HasName ? th : 0;
+
+                SKBitmap bitmap = new SKBitmap(h/*150*/ + maxEntriesPerRow * (EntryWidth + h /*+ 50*/), extraHeight + (int)Math.Ceiling((decimal)sectionEntries.Count / maxEntriesPerRow) * (EntryHeight + h /*+ 50*/));
             
                 using (SKCanvas c = new SKCanvas(bitmap))
                 {
@@ -338,9 +371,10 @@ namespace ChicShop
                         Color = new SKColor(40, 40, 40)
                     }) c.DrawRect(0, 0, bitmap.Width, bitmap.Height, paint);
 
-                    int x = 50;//100;
+                    int x = f;//100;
                     int y = extraHeight;
                     int row = 0;
+                    int column = 0;
 
                     for (int i = 0; i < sectionEntries.Count; i++)
                     {
@@ -354,15 +388,15 @@ namespace ChicShop
 
                         GC.Collect();
 
-                        x += 768 + 100 /*+ 50*/;
-
-                        if (i + 1 >= row + 1 * maxEntriesPerRow)
+                        if (++column == maxEntriesPerRow)
                         {
                             row++;
-                            x = 50;//100;
+                            column = 0;
+                            //x = 50;//100;
                         }
 
-                        y = extraHeight + (1024 + 100 /*+ 50*/) * row;
+                        x = f + (EntryWidth + h) * column; /*+ 50*/
+                        y = extraHeight + (EntryHeight + h /*+ 50*/) * row;
                     }
 
                     using (var paint = new SKPaint
@@ -370,12 +404,12 @@ namespace ChicShop
                         IsAntialias = true,
                         FilterQuality = SKFilterQuality.High,
                         Color = SKColors.White,
-                        TextSize = 100,
+                        TextSize = h,
                         Typeface = ChicTypefaces.BurbankBigRegularBlack,
                         TextAlign = SKTextAlign.Left,
                         ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
                     }) if (section.HasName)
-                        c.DrawText(section.DisplayName, 100, 150, paint);
+                        c.DrawText(section.DisplayName, h, hf, paint);
                 }
 
                 sectionEntries = null;
@@ -404,10 +438,10 @@ namespace ChicShop
                     ShortDescription = (entry.IsBundle ? entry.Bundle.Info : item.Type.DisplayValue).ToUpper(),
                     Banner = entry.HasBanner ? entry.Banner.Value.ToUpper() : "",
                     Price = entry.FinalPrice,
-                    IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon),
+                    IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon, $"icon_{item.Id}{(entry.IsBundle ? "_Bundle.png" : ".png")}"),
                     RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image) : null,
-                    Width = 768,
-                    Height = 1024
+                    Width = EntryWidth,
+                    Height = EntryHeight
                 })
                 {
                     ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
@@ -449,10 +483,12 @@ namespace ChicShop
 
         public bool IsInCache(string path) => File.Exists(path);
 
-        public SKBitmap GetBitmapFromUrl(string url) => GetBitmapFromUrl(new Uri(url));
-        public SKBitmap GetBitmapFromUrl(Uri url)
+        public SKBitmap GetBitmapFromUrl(string url, string name = "ek.png") => GetBitmapFromUrl(new Uri(url), name);
+        public SKBitmap GetBitmapFromUrl(Uri url, string name = "ek.png")
         {
-            if (IsInCache($"{Root}Cache/{url.ToString().Split('/').Last()}")) return LoadFromCache($"{Root}Cache/{url.ToString().Split('/').Last()}");
+            Console.WriteLine($"{Root}Cache/{name}");
+
+            if (IsInCache($"{Root}Cache/{name}")) return LoadFromCache($"{Root}Cache/{name}");
 
             using (var client = new HttpClient())
             {
@@ -462,7 +498,7 @@ namespace ChicShop
                 {
                     SKBitmap bitmap = SKBitmap.Decode(stream);
 
-                    SaveToCache(bitmap, $"{Root}Cache/{url.ToString().Split('/').Last()}", false);
+                    SaveToCache(bitmap, $"{Root}Cache/{name}", false);
                     return bitmap;
                 }
             }

@@ -1,6 +1,9 @@
 using Newtonsoft.Json;
 using RestSharp;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ChicShop.Chic.Shop
 {
@@ -83,10 +86,52 @@ namespace ChicShop.Chic.Shop
         public bool IsBundle => Bundle != null;
     }
 
-    /*public class EntryComparer : IComparer<StorefrontEntry>
+    public class EntryComparer : IComparer<KeyValuePair<StorefrontEntry, BitmapData>>
     {
-        
-    }*/
+        public static EntryComparer Comparer = new EntryComparer();
+
+        public int Compare(KeyValuePair<StorefrontEntry, BitmapData> x, KeyValuePair<StorefrontEntry, BitmapData> y)
+        {
+            if (x.Key.Categories.Contains(x => x.Contains("zDaily")) || y.Key.Categories.Contains(x => x.Contains("zDaily")))
+            {
+                int xDaily = 0;
+                int yDaily = 0;
+
+                if (x.Key.Categories.Contains(x => x.Contains("zDaily"))) xDaily = int.Parse(x.Key.Categories.First(
+                    predicate: x => x.Contains("zDaily")).Replace("zDaily ", ""));
+                if (y.Key.Categories.Contains(x => x.Contains("zDaily"))) yDaily = int.Parse(y.Key.Categories.First(
+                    predicate: x => x.Contains("zDaily")).Replace("zDaily ", ""));
+
+                if (xDaily < yDaily) return -1;
+                if (xDaily == yDaily) return x.Key.IsBundle ? -1 : y.Key.IsBundle ? 1 :
+                        x.Key.SortPriority > y.Key.SortPriority ? -1 :
+                        x.Key.SortPriority == y.Key.SortPriority ? 0 : 1;
+
+                        /*x.Key.IsBundle ? -1 : y.Key.IsBundle ? 1 : 
+                        x.Key.Items[0].TypeEnum > y.Key.Items[0].TypeEnum ? 1 : 
+                        x.Key.Items[0].TypeEnum == y.Key.Items[0].TypeEnum ? 0 : -1;*/
+                if (xDaily > yDaily) return 1;
+            }
+            else
+            {
+                int xPanel = 0;
+                int yPanel = 0;
+
+                if (x.Key.Categories.Contains(x => x.Contains("Panel"))) xPanel = int.Parse(x.Key.Categories.First(
+                    predicate: x => x.Contains("Panel")).Replace("Panel ", ""));
+                if (y.Key.Categories.Contains(x => x.Contains("Panel"))) yPanel = int.Parse(y.Key.Categories.First(
+                    predicate: x => x.Contains("Panel")).Replace("Panel ", ""));
+
+                if (xPanel < yPanel) return -1;
+                if (xPanel == yPanel) return x.Key.IsBundle ? -1 : y.Key.IsBundle ? 1 :
+                        x.Key.SortPriority > y.Key.SortPriority ? -1 :
+                        x.Key.SortPriority == y.Key.SortPriority ? 0 : 1;
+                if (xPanel > yPanel) return 1;
+            }
+
+            return 0;
+        }
+    }
 
     public class EntryBundle
     {
@@ -121,7 +166,33 @@ namespace ChicShop.Chic.Shop
         [JsonProperty("images")]
         public ImageValue Images;
 
+        public ItemType TypeEnum
+        {
+            get
+            {
+                try
+                {
+                    return (ItemType)Enum.Parse(typeof(ItemType), Type.Value);
+                } catch (Exception)
+                {
+                    return ItemType.Other;
+                }
+            }
+        }
+
+
         public bool HasSeries => Series != null;
+
+        public enum ItemType
+        {
+            Outfit,
+            Backpack,
+            Glider,
+            Pickaxe,
+            Wrap,
+            Emote,
+            Other
+        }
     }
     
     public class ItemValue

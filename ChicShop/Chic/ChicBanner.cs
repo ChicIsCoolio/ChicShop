@@ -6,6 +6,16 @@ namespace ChicShop.Chic
     {
         public static void DrawBanner(SKCanvas c, BaseIcon icon)
         {
+            var f = (int)(ChicRatios.Get1024(50) * icon.Height);
+            var tf = (int)(ChicRatios.Get1024(25) * icon.Height);
+            var tt = (int)(ChicRatios.Get1024(23) * icon.Height);
+            var t = (int)(ChicRatios.Get1024(20) * icon.Height);
+            var et = (int)(ChicRatios.Get1024(18) * icon.Height);
+            var ft = (int)(ChicRatios.Get1024(15) * icon.Height);
+            var tw = (int)(ChicRatios.Get1024(12) * icon.Height);
+            var n = (int)(ChicRatios.Get1024(9) * icon.Height);
+            var s = (int)(ChicRatios.Get1024(7) * icon.Height);
+
             using (var textPaint = new SKPaint
             {
                 IsAntialias = true,
@@ -13,7 +23,7 @@ namespace ChicShop.Chic
                 Color = SKColors.White,
                 Typeface = ChicTypefaces.BurbankBigRegularBlack,
                 TextAlign = SKTextAlign.Left,
-                TextSize = 50
+                TextSize = f
             })
             {
                 int width = (int)textPaint.MeasureText(icon.Banner);
@@ -22,13 +32,13 @@ namespace ChicShop.Chic
                 {
                     path.FillType = SKPathFillType.EvenOdd;
 
-                    path.MoveTo(15, 15);
-                    path.LineTo(width + 50, 12);
-                    path.LineTo(width + 25, textPaint.TextSize + 23);
-                    path.LineTo(20, textPaint.TextSize + 18);
+                    path.MoveTo(ft, ft);
+                    path.LineTo(width + f, tw);
+                    path.LineTo(width + tf, textPaint.TextSize + tt);
+                    path.LineTo(t, textPaint.TextSize + et);
                     path.Close();
 
-                    using (var filter = SKImageFilter.CreateDropShadow(0, 0, 7, 7, SKColors.Black))
+                    using (var filter = SKImageFilter.CreateDropShadow(0, 0, s, s, SKColors.Black))
                         c.DrawPath(path,
                             new SKPaint
                             {
@@ -39,7 +49,7 @@ namespace ChicShop.Chic
                             });
                 }
 
-                c.DrawText(icon.Banner, 25, textPaint.TextSize + 9, textPaint);
+                c.DrawText(icon.Banner, tf, textPaint.TextSize + n, textPaint);
             }
         }
     }

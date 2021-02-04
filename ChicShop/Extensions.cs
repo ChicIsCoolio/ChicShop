@@ -40,5 +40,19 @@ namespace ChicShop
 
         public static void Add<TKey, TValue>(this Dictionary<TKey, TValue> dic, KeyValuePair<TKey, TValue> value)
             => dic.Add(value.Key, value.Value);
+
+        public static void Add<TKey, TValue>(this Dictionary<TKey, TValue> dic, List<KeyValuePair<TKey, TValue>> values)
+        {
+            foreach (var value in values)
+            {
+                dic.Add(value);
+            }
+        }
+
+        public static List<T> Sort<T>(this List<T> list, IComparer<T> comparer, int b)
+        {
+            list.Sort(comparer);
+            return list;
+        }
     }
 }

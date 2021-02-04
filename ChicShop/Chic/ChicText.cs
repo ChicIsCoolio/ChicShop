@@ -1,5 +1,8 @@
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ChicShop.Chic
 {
@@ -126,6 +129,66 @@ namespace ChicShop.Chic
                 if (align == SKTextAlign.Left) c.DrawText(text, five, icon.Height - five, paint);
                 else c.DrawText(text, icon.Width - five - (int)(icon.Height * ChicRatios.Get(27.5f)), icon.Height - five, paint);
             }
+        }
+
+        public static void DrawMultilineText(SKCanvas c, string text, SKRect area, SKPaint paint)
+        {
+            float lineHeight = paint.TextSize * 1.2f;
+            var lines = SplitLines(text, paint, area.Width);
+            var height = lines.Count() * lineHeight;
+
+            var y = area.MidY - height / 2;
+
+            foreach (var line in lines)
+            {
+                y += lineHeight;
+                var x = area.MidX - line.Width / 2;
+                c.DrawText(line.Value, x, y, paint);
+            }
+        }
+        private class Line
+        {
+            public string Value { get; set; }
+
+            public float Width { get; set; }
+        }
+
+        private static Line[] SplitLines(string text, SKPaint paint, float maxWidth)
+        {
+            var spaceWidth = paint.MeasureText(" ");
+            var lines = text.Split('\n');
+
+            return lines.SelectMany((line) =>
+            {
+                var result = new List<Line>();
+
+                var words = line.Split(new[] { " " }, StringSplitOptions.None);
+
+                var lineResult = new StringBuilder();
+                float width = 0;
+                foreach (var word in words)
+                {
+                    var wordWidth = paint.MeasureText(word);
+                    var wordWithSpaceWidth = wordWidth + spaceWidth;
+                    var wordWithSpace = word + " ";
+
+                    if (width + wordWidth > maxWidth)
+                    {
+                        result.Add(new Line() { Value = lineResult.ToString(), Width = width });
+                        lineResult = new StringBuilder(wordWithSpace);
+                        width = wordWithSpaceWidth;
+                    }
+                    else
+                    {
+                        lineResult.Append(wordWithSpace);
+                        width += wordWithSpaceWidth;
+                    }
+                }
+
+                result.Add(new Line() { Value = lineResult.ToString(), Width = width });
+
+                return result.ToArray();
+            }).ToArray();
         }
 
         public static void DrawVbuck(SKCanvas c, BaseIcon icon)

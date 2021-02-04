@@ -9,5 +9,6 @@ namespace ChicShop.Chic
     public class ChicRatios
     {
         public static float Get(float original) => original / 512;
+        public static float Get1024(float original) => original / 1024;
     }
 }

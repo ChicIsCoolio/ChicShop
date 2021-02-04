@@ -11,6 +11,7 @@
     <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="TweetSharp" Version="2.3.1" />
   </ItemGroup>
 
 </Project>

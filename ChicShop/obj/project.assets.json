@@ -100,6 +100,22 @@
         "build": {
           "buildTransitive/net5.0/_._": {}
         }
+      },
+      "TweetSharp/2.3.1": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "5.0.6"
+        },
+        "compile": {
+          "lib/4.0/Hammock.ClientProfile.dll": {},
+          "lib/4.0/Newtonsoft.Json.dll": {},
+          "lib/4.0/TweetSharp.dll": {}
+        },
+        "runtime": {
+          "lib/4.0/Hammock.ClientProfile.dll": {},
+          "lib/4.0/Newtonsoft.Json.dll": {},
+          "lib/4.0/TweetSharp.dll": {}
+        }
       }
     }
   },
@@ -304,6 +320,72 @@
         "system.reactive.5.0.0.nupkg.sha512",
         "system.reactive.nuspec"
       ]
+    },
+    "TweetSharp/2.3.1": {
+      "sha512": "0iN3kZ+idHMZ2L9F1Hxnt4kCO4s53hfLu+erANQhP3chwsRrEgGjCpjo9OOM27sHCKNHd9e9iSrymQ9EtXlUOQ==",
+      "type": "package",
+      "path": "tweetsharp/2.3.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "lib/2.0/Hammock.dll",
+        "lib/2.0/Hammock.pdb",
+        "lib/2.0/Newtonsoft.Json.dll",
+        "lib/2.0/Newtonsoft.Json.xml",
+        "lib/2.0/TweetSharp.dll",
+        "lib/2.0/TweetSharp.pdb",
+        "lib/3.5/Hammock.ClientProfile.dll",
+        "lib/3.5/Hammock.ClientProfile.pdb",
+        "lib/3.5/Newtonsoft.Json.dll",
+        "lib/3.5/Newtonsoft.Json.xml",
+        "lib/3.5/TweetSharp.dll",
+        "lib/3.5/TweetSharp.pdb",
+        "lib/4.0/Hammock.ClientProfile.dll",
+        "lib/4.0/Hammock.ClientProfile.pdb",
+        "lib/4.0/Newtonsoft.Json.dll",
+        "lib/4.0/Newtonsoft.Json.xml",
+        "lib/4.0/TweetSharp.dll",
+        "lib/4.0/TweetSharp.pdb",
+        "lib/sl4-wp/Hammock.WindowsPhone.dll",
+        "lib/sl4-wp/Hammock.WindowsPhone.pdb",
+        "lib/sl4-wp/ICSharpCode.SharpZipLib.WindowsPhone.dll",
+        "lib/sl4-wp/ICSharpCode.SharpZipLib.WindowsPhone.pdb",
+        "lib/sl4-wp/Newtonsoft.Json.dll",
+        "lib/sl4-wp/Newtonsoft.Json.xml",
+        "lib/sl4-wp/TweetSharp.WindowsPhone.dll",
+        "lib/sl4-wp/TweetSharp.WindowsPhone.pdb",
+        "lib/sl4-wp71/Hammock.WindowsPhone.Mango.dll",
+        "lib/sl4-wp71/Hammock.WindowsPhone.Mango.pdb",
+        "lib/sl4-wp71/ICSharpCode.SharpZipLib.WindowsPhone.dll",
+        "lib/sl4-wp71/ICSharpCode.SharpZipLib.WindowsPhone.pdb",
+        "lib/sl4-wp71/Newtonsoft.Json.dll",
+        "lib/sl4-wp71/Newtonsoft.Json.xml",
+        "lib/sl4-wp71/TweetSharp.WindowsPhone.Mango.dll",
+        "lib/sl4-wp71/TweetSharp.WindowsPhone.Mango.pdb",
+        "lib/sl4/Hammock.Silverlight.dll",
+        "lib/sl4/Hammock.Silverlight.pdb",
+        "lib/sl4/ICSharpCode.SharpZipLib.Silverlight.dll",
+        "lib/sl4/ICSharpCode.SharpZipLib.Silverlight.pdb",
+        "lib/sl4/Newtonsoft.Json.dll",
+        "lib/sl4/Newtonsoft.Json.xml",
+        "lib/sl4/System.Xml.Linq.dll",
+        "lib/sl4/System.Xml.Linq.xml",
+        "lib/sl4/TweetSharp.Silverlight.dll",
+        "lib/sl4/TweetSharp.Silverlight.pdb",
+        "lib/sl4/de/System.Xml.Linq.resources.dll",
+        "lib/sl4/es/System.Xml.Linq.resources.dll",
+        "lib/sl4/fr/System.Xml.Linq.resources.dll",
+        "lib/sl4/it/System.Xml.Linq.resources.dll",
+        "lib/sl4/ja/System.Xml.Linq.resources.dll",
+        "lib/sl4/ko/System.Xml.Linq.resources.dll",
+        "lib/sl4/ru/System.Xml.Linq.resources.dll",
+        "lib/sl4/zh-Hans/System.Xml.Linq.resources.dll",
+        "lib/sl4/zh-Hant/System.Xml.Linq.resources.dll",
+        "tweetsharp.2.3.1.nupkg.sha512",
+        "tweetsharp.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -312,28 +394,36 @@
       "RestSharp >= 106.11.7",
       "SkiaSharp >= 2.80.2",
       "SkiaSharp.NativeAssets.Linux >= 2.80.2",
-      "System.Reactive >= 5.0.0"
+      "System.Reactive >= 5.0.0",
+      "TweetSharp >= 2.3.1"
     ]
   },
   "packageFolders": {
-    "/home/runner/.nuget/packages/": {}
+    "C:\\Users\\Hopík\\.nuget\\packages\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
+      "projectUniqueName": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
       "projectName": "ChicShop",
-      "projectPath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
-      "packagesPath": "/home/runner/.nuget/packages/",
-      "outputPath": "/home/runner/ChicShop/ChicShop/obj/",
+      "projectPath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
+      "packagesPath": "C:\\Users\\Hopík\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Microsoft\\Xamarin\\NuGet\\"
+      ],
       "configFilePaths": [
-        "/home/runner/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Hopík\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -371,6 +461,10 @@
           "System.Reactive": {
             "target": "Package",
             "version": "[5.0.0, )"
+          },
+          "TweetSharp": {
+            "target": "Package",
+            "version": "[2.3.1, )"
           }
         },
         "imports": [
@@ -388,8 +482,20 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/runner/.dotnet/sdk/5.0.102/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Balíček TweetSharp 2.3.1 se místo cílové verze rozhraní .NET Framework projektu net5.0 obnovil pomocí .NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8. Balíček nemusí být plně kompatibilní s vaším projektem.",
+      "libraryId": "TweetSharp",
+      "targetGraphs": [
+        "net5.0"
+      ]
+    }
+  ]
 }

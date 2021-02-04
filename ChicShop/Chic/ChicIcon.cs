@@ -10,7 +10,9 @@ namespace ChicShop.Chic
     {
         public static SKBitmap GenerateIcon(BaseIcon icon)
         {
-            var bitmap = new SKBitmap(icon.Width + 100, icon.Height + 100);
+            int h = (int)(ChicRatios.Get1024(100) * icon.Height);
+
+            var bitmap = new SKBitmap(icon.Width + h, icon.Height + h);
 
             using (var bmp = new SKBitmap(icon.Width, icon.Height, SKColorType.Rgba8888, SKAlphaType.Premul))
             {
@@ -54,12 +56,15 @@ namespace ChicShop.Chic
 
                 using (var c = new SKCanvas(bitmap))
                 {
+                    int f = (int)(ChicRatios.Get1024(50) * icon.Height);
+                    int t = (int)(ChicRatios.Get1024(20) * icon.Height);
+
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
                         FilterQuality = SKFilterQuality.High,
-                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 20, 20, SKColors.Black)
-                    }) c.DrawBitmap(bmp, 50, 50, paint);
+                        ImageFilter = SKImageFilter.CreateDropShadow(0, 0, t, t, SKColors.Black)
+                    }) c.DrawBitmap(bmp, f, f, paint);
 
                     if (icon.HasBanner) ChicBanner.DrawBanner(c, icon);
                 }
