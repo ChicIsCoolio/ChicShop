@@ -5,28 +5,38 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TweetSharp;
+using LinqToTwitter;
+using LinqToTwitter.OAuth;
+using System.Security.Cryptography;
 
 namespace ChicShop.Chic.Twitter
 {
     public class TwitterManager
     {
-        static TwitterService Service;
+        static TwitterContext Context;
 
-        public static void Auth(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret)
+        public static void Auth()
         {
-            Service = new TwitterService(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+            var auth = new SingleUserAuthorizer
+            {
+                CredentialStore = new SingleUserInMemoryCredentialStore
+                {
+                    ConsumerKey = Environment.GetEnvironmentVariable("CONSUMERKEY"),
+                    ConsumerSecret = Environment.GetEnvironmentVariable("CONSUMERSECRET"),
+                    AccessToken = Environment.GetEnvironmentVariable("ACCESSTOKEN"),
+                    AccessTokenSecret = Environment.GetEnvironmentVariable("ACCESSSECRET")
+                }
+            };
+
+            Context = new TwitterContext(auth);
         }
 
         public static void SendMediaTweet(string filePath, string status)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                Service.SendTweetWithMedia(new SendTweetWithMediaOptions
-                {
-                    Status = status,
-                    Images = new Dictionary<string, Stream> { { filePath, stream } }
-                });
-            }
+            if (Context == null) Auth();
+
+            var media = Context.UploadMediaAsync(File.ReadAllBytes(filePath), "image/jpeg", "tweet_image").Result;
+            Context.TweetAsync(status, new[] { media.MediaID });
         }
     }
 }

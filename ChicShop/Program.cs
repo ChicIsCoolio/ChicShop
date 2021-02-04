@@ -32,11 +32,6 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            TwitterManager.Auth(Environment.GetEnvironmentVariable("CONSUMERKEY"),
-                Environment.GetEnvironmentVariable("CONSUMERSECRET"),
-                Environment.GetEnvironmentVariable("ACCESSTOKEN"),
-                Environment.GetEnvironmentVariable("ACCESSSECRET"));
-            
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -107,7 +102,7 @@ namespace ChicShop
                     }
                 }
 
-                string status = "test2";
+                string status = "test4";
 
                 TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
             }
