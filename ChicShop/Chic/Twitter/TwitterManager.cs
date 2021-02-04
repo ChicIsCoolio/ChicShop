@@ -10,17 +10,18 @@ namespace ChicShop.Chic.Twitter
 {
     public class TwitterManager
     {
-        static string ConsumerKey = Environment.GetEnvironmentVariable("CONSUMER-KEY");
-        static string ConsumerSecret = Environment.GetEnvironmentVariable("CONSUMER-SECRET");
-        static string AccessToken = Environment.GetEnvironmentVariable("ACCESS-TOKEN");
-        static string AccessSecret = Environment.GetEnvironmentVariable("ACCESS-SECRET");
+        static TwitterService Service;
+
+        public static void Auth(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret)
+        {
+            Service = new TwitterService(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+        }
 
         public static void SendMediaTweet(string filePath, string status)
         {
             using (var stream = new FileStream(filePath, FileMode.Open))
             {
-                new TwitterService(ConsumerKey, ConsumerSecret, AccessToken, AccessSecret)
-                    .SendTweetWithMedia(new SendTweetWithMediaOptions
+                Service.SendTweetWithMedia(new SendTweetWithMediaOptions
                 {
                     Status = status,
                     Images = new Dictionary<string, Stream> { { filePath, stream } }

@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "dgSpecHash": "KNr2FeD8oVjgy0BmHik7X91REm20oGhogiaw8VNdNWTgA8h6nBiOYDOdEYSdzMpG6xP93G2P7saqwxcTUxMC9A==",
+  "dgSpecHash": "SAJ9kDq9dBNNsAXT7PR6WGV/3OdeObEigN9kIPQwUwcXoIxTtHKffIXlyQCh6CDecpce93co7OnHWQYPw7ML4A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
+  "projectFilePath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Hopík\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\restsharp\\106.11.7\\restsharp.106.11.7.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp\\2.80.2\\skiasharp.2.80.2.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\skiasharp.nativeassets.linux\\2.80.2\\skiasharp.nativeassets.linux.2.80.2.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\system.reactive\\5.0.0\\system.reactive.5.0.0.nupkg.sha512",
-    "C:\\Users\\Hopík\\.nuget\\packages\\tweetsharp\\2.3.1\\tweetsharp.2.3.1.nupkg.sha512"
+    "/home/runner/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/restsharp/106.11.7/restsharp.106.11.7.nupkg.sha512",
+    "/home/runner/.nuget/packages/skiasharp/2.80.2/skiasharp.2.80.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/skiasharp.nativeassets.linux/2.80.2/skiasharp.nativeassets.linux.2.80.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.reactive/5.0.0/system.reactive.5.0.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/tweetsharp/2.3.1/tweetsharp.2.3.1.nupkg.sha512"
   ],
   "logs": [
     {
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Balíček TweetSharp 2.3.1 se místo cílové verze rozhraní .NET Framework projektu net5.0 obnovil pomocí .NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8. Balíček nemusí být plně kompatibilní s vaším projektem.",
+      "message": "Package 'TweetSharp 2.3.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net5.0'. This package may not be fully compatible with your project.",
       "libraryId": "TweetSharp",
       "targetGraphs": [
         "net5.0"

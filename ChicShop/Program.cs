@@ -32,6 +32,11 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
+            TwitterManager.Auth(Environment.GetEnvironmentVariable("CONSUMERKEY"),
+                Environment.GetEnvironmentVariable("CONSUMERSECRET"),
+                Environment.GetEnvironmentVariable("ACCESSTOKEN"),
+                Environment.GetEnvironmentVariable("ACCESSSECRET"));
+            
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -41,9 +46,9 @@ namespace ChicShop
 
             WebServer.Start();
 
-            var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
+            var shop = Shop.Get(Environment.GetEnvironmentVariable("APIKEY")).Data;
 
-            DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
+            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1).AddSeconds(10);
             shop = null;
 
             int generated = 0;
