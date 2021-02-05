@@ -26,7 +26,9 @@ namespace ChicShop
 
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
-        
+
+        bool enableCommands;
+
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
@@ -57,18 +59,36 @@ namespace ChicShop
                 reschedule(time.AddDays(1));
             });
 
+            Console.WriteLine("Enter key to enable commands:");
+            DoCommand(Console.ReadLine());
+
             await Task.Delay(-1);        
         }
 
-        public void DoCommand()
+        public void DoCommand(string command)
         {
-            switch Console.ReadLine()
+            if (enableCommands)
+            switch (command)
             {
-                "generate shop" => GenerateShop();
-                "clear cache" => Directory.Delete($"{Root}Cache", true);
+                case "generate shop": 
+                    GenerateShop();
+                    break;
+                case "clear cache":
+                    Directory.Delete($"{Root}Cache", true);
+                    Console.WriteLine("Cleared cache!");
+                    break;
+                default:
+                    Console.WriteLine("Wrong command!");
+                    break;
+            }
+            else if (command == Environment.GetEnvironmentVariable("COMMANDSKEY"))
+            {
+                enableCommands = true;
+                Console.WriteLine("Commands enabled");
             }
 
-            DoCommand();
+            Console.WriteLine(enableCommands ? "Enter command:" : "Wrong key.\nTry again:");
+            DoCommand(Console.ReadLine());
         }
 
         public void GenerateShop()
@@ -80,7 +100,7 @@ namespace ChicShop
             var watch = new Stopwatch();
             watch.Start();
 
-            var shop = Shop.Get(Environment.GetEnvironmentVariable("API-KEY")).Data;
+            var shop = Shop.Get(Environment.GetEnvironmentVariable("APIKEY")).Data;
             DateTime date = shop.ShopDate;
 
             Dictionary<StorefrontEntry, BitmapData> entries = new Dictionary<StorefrontEntry, BitmapData>();
@@ -135,9 +155,10 @@ namespace ChicShop
                     : (date.Day % 10 == 3 && date.Day != 13) ? "rd"
                     : "th";
 
-                string status = $"Fortnite Item Shop\n{string.Format("{0:dddd}, {0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
+                string status = $"Fortnite Item Shop\n{string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
                 TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
+                File.Delete($"{Root}Cache/shop.png");
             }
 
             watch.Stop();
