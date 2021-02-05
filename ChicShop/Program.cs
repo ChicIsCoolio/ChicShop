@@ -26,12 +26,14 @@ namespace ChicShop
 
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
-
+        s
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
+            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
+
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -93,17 +95,42 @@ namespace ChicShop
 
             using (var full = A(sections, bitmaps))
             {
+                int w = (int)(full.Width / 1.5);
+                int h = (int)(full.Height / 1.5);
+
+                SaveToCache(full, "shop.png");
                 sections = null;
                 bitmaps = null;
+                
                 GC.Collect();
 
-                using (var data = SKImage.FromBitmap(full).Encode(SKEncodedImageFormat.Jpeg, 100))
+                using (var bmp = new SKBitmap(w, h))
+                {
+                    using (var c = new SKCanvas(bmp))
+                    using (var b = LoadFromCache("shop.png"))
+                    {
+                        c.DrawBitmap(b, new SKRect(0, 0, w, h));
+                    }
+
+                    using (var image = SKImage.FromBitmap(bmp))
+                    {
+                        using (var dat = image.Encode(SKEncodedImageFormat.Jpeg, 100))
+                        {
+                            using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
+                            {
+                                dat.SaveTo(stream);
+                            }
+                        }
+                    }
+                }
+
+                /*using (var data = SKImage.FromBitmap(full).Encode(SKEncodedImageFormat.Jpeg, 100))
                 {
                     using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
                     {
                         data.SaveTo(stream);
                     }
-                }
+                }*/
 
                 string suffix = (date.Day % 10 == 1 && date.Day != 11) ? "st"
                     : (date.Day % 10 == 2 && date.Day != 12) ? "nd"
@@ -146,7 +173,7 @@ namespace ChicShop
                 using (var paint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.Low,
+                    FilterQuality = SKFilterQuality.High,
                     Color = new SKColor(40, 40, 40)
                 }) c.DrawRect(0, 0, merge.Width, merge.Height, paint);
 
@@ -166,7 +193,7 @@ namespace ChicShop
                 using (var textPaint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.Low,
+                    FilterQuality = SKFilterQuality.High,
                     TextSize = (int)(ChicRatios.Get1024(150) * EntryHeight),
                     Color = SKColors.White,
                     Typeface = ChicTypefaces.BurbankBigRegularBlack,
@@ -272,7 +299,7 @@ namespace ChicShop
                         new SKPaint
                         {
                             IsAntialias = true,
-                            FilterQuality = SKFilterQuality.Low,
+                            FilterQuality = SKFilterQuality.High,
                             Color = new SKColor(40, 40, 40)
                         });
 
@@ -280,13 +307,13 @@ namespace ChicShop
                         new SKPaint
                         {
                             IsAntialias = true,
-                            FilterQuality = SKFilterQuality.Low
+                            FilterQuality = SKFilterQuality.High
                         });
 
                     var textPaint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.Low,
+                        FilterQuality = SKFilterQuality.High,
                         TextSize = 200,
                         Color = SKColors.White,
                         Typeface = ChicTypefaces.BurbankBigRegularBlack,
@@ -375,7 +402,7 @@ namespace ChicShop
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.Low,
+                        FilterQuality = SKFilterQuality.High,
                         Color = new SKColor(40, 40, 40)
                     }) c.DrawRect(0, 0, bitmap.Width, bitmap.Height, paint);
 
@@ -390,7 +417,7 @@ namespace ChicShop
 
                         using (var b = LoadFromCache(entry.Value))
                         {
-                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.Low })
+                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.High })
                                 c.DrawBitmap(b, x, y, paint);
                         }
 
@@ -410,7 +437,7 @@ namespace ChicShop
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.Low,
+                        FilterQuality = SKFilterQuality.High,
                         Color = SKColors.White,
                         TextSize = h,
                         Typeface = ChicTypefaces.BurbankBigRegularBlack,
@@ -447,7 +474,7 @@ namespace ChicShop
                     Banner = entry.HasBanner ? entry.Banner.Value.ToUpper() : "",
                     Price = entry.FinalPrice,
                     IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon, $"icon_{item.Id}{(entry.IsBundle ? "_Bundle.png" : ".png")}"),
-                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image, item.Series.BackendValue) : null,
+                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image, item.Series.BackendValue + ".png") : null,
                     Width = EntryWidth,
                     Height = EntryHeight
                 })

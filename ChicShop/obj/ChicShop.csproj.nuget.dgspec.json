@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "/home/runner/ChicShop/ChicShop/ChicShop.csproj": {}
+    "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj": {}
   },
   "projects": {
-    "/home/runner/ChicShop/ChicShop/ChicShop.csproj": {
+    "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
+        "projectUniqueName": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
         "projectName": "ChicShop",
-        "projectPath": "/home/runner/ChicShop/ChicShop/ChicShop.csproj",
-        "packagesPath": "/home/runner/.nuget/packages/",
-        "outputPath": "/home/runner/ChicShop/ChicShop/obj/",
+        "projectPath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\ChicShop.csproj",
+        "packagesPath": "C:\\Users\\Hopík\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Hopík\\source\\repos\\ChicShop\\ChicShop\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "/home/runner/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Hopík\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -78,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/runner/.dotnet/sdk/5.0.102/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

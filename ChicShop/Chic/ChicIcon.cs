@@ -62,7 +62,7 @@ namespace ChicShop.Chic
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.Low,
+                        FilterQuality = SKFilterQuality.High,
                         ImageFilter = SKImageFilter.CreateDropShadow(0, 0, t, t, SKColors.Black)
                     }) c.DrawBitmap(bmp, f, f, paint);
 

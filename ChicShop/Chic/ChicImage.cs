@@ -21,7 +21,7 @@ namespace ChicShop.Chic
             using (var paint = new SKPaint
             {
                 IsAntialias = true,
-                FilterQuality = SKFilterQuality.Low,
+                FilterQuality = SKFilterQuality.High,
                 ImageFilter = filter
             }) c.DrawBitmap(icon.IconImage, new SKRect(x, y, x + icon.Height, y + icon.Height), paint);
         }

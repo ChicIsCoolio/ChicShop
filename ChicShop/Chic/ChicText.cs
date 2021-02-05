@@ -42,7 +42,7 @@ namespace ChicShop.Chic
                 using (var paint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.Low,
+                    FilterQuality = SKFilterQuality.High,
                     Color = rarityColor,
                     ImageFilter = filter
                 }) c.DrawPath(rarityPath, paint);
@@ -58,7 +58,7 @@ namespace ChicShop.Chic
                 c.DrawPath(pathBottom, new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.Low,
+                    FilterQuality = SKFilterQuality.High,
                     Color = new SKColor(30, 30, 30)
                 });
             }
@@ -91,7 +91,7 @@ namespace ChicShop.Chic
             using (var namePaint = new SKPaint
             {
                 IsAntialias = true,
-                FilterQuality = SKFilterQuality.Low,
+                FilterQuality = SKFilterQuality.High,
                 Typeface = ChicTypefaces.BurbankBigCondensedBold,
                 TextSize = icon.Height * NAME_TEXT_SIZE_RATIO,
                 Color = SKColors.White,
@@ -116,7 +116,7 @@ namespace ChicShop.Chic
             using (var paint = new SKPaint
             {
                 IsAntialias = true,
-                FilterQuality = SKFilterQuality.Low,
+                FilterQuality = SKFilterQuality.High,
                 Typeface = ChicTypefaces.BurbankBigRegularBlack,
                 TextSize = icon.Height * (align == SKTextAlign.Left ? BOTTOM_TEXT_SIZE_RATIO : ChicRatios.Get(30)),
                 Color = SKColors.White,
@@ -199,7 +199,7 @@ namespace ChicShop.Chic
             using (var paint = new SKPaint
             {
                 IsAntialias = true,
-                FilterQuality = SKFilterQuality.Low,
+                FilterQuality = SKFilterQuality.High,
             }) c.DrawBitmap(SKBitmap.Decode(Program.Root + "Resources/T-VBuck-128.png"),
                 new SKRect(icon.Width - vbuckSize - two, icon.Height - vbuckSize - two, icon.Width - two, icon.Height - two), paint);
         }

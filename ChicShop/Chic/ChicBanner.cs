@@ -19,7 +19,7 @@ namespace ChicShop.Chic
             using (var textPaint = new SKPaint
             {
                 IsAntialias = true,
-                FilterQuality = SKFilterQuality.Low,
+                FilterQuality = SKFilterQuality.High,
                 Color = SKColors.White,
                 Typeface = ChicTypefaces.BurbankBigRegularBlack,
                 TextAlign = SKTextAlign.Left,
@@ -43,7 +43,7 @@ namespace ChicShop.Chic
                             new SKPaint
                             {
                                 IsAntialias = true,
-                                FilterQuality = SKFilterQuality.Low,
+                                FilterQuality = SKFilterQuality.High,
                                 Color = SKColor.Parse("#f5112c"),
                                 ImageFilter = filter
                             });
