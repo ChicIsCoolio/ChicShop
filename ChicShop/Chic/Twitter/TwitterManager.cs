@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TweetSharp;
 using LinqToTwitter;
 using LinqToTwitter.OAuth;
 using System.Security.Cryptography;

@@ -24,8 +24,8 @@ namespace ChicShop
     {
         public static string Root = "/home/runner/ChicShop/";
 
-        public int EntryHeight { get; private set; } = 512;
-        public int EntryWidth { get; private set; } = 384;
+        public int EntryHeight { get; private set; } = 640;
+        public int EntryWidth { get; private set; } = 480;
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
@@ -41,9 +41,12 @@ namespace ChicShop
 
             WebServer.Start();
 
+            Console.WriteLine("Generate shop now?");
+            if (Console.ReadLine() == "y") GenerateShop();
+
             var shop = Shop.Get(Environment.GetEnvironmentVariable("APIKEY")).Data;
 
-            DateTimeOffset time = DateTimeOffset.Now.AddSeconds(5);//shop.ShopDate.AddDays(1).AddSeconds(10);
+            DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
             shop = null;
 
             int generated = 0;
@@ -102,9 +105,14 @@ namespace ChicShop
                     }
                 }
 
-                string status = "test4";
+                string suffix = (date.Day % 10 == 1 && date.Day != 11) ? "st"
+                    : (date.Day % 10 == 2 && date.Day != 12) ? "nd"
+                    : (date.Day % 10 == 3 && date.Day != 13) ? "rd"
+                    : "th";
 
-                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
+                string status = $"Fortnite Item Shop\n{string.Format("{0:dddd}, {0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
+
+                //TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
             }
 
             watch.Stop();
@@ -138,7 +146,7 @@ namespace ChicShop
                 using (var paint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
+                    FilterQuality = SKFilterQuality.Low,
                     Color = new SKColor(40, 40, 40)
                 }) c.DrawRect(0, 0, merge.Width, merge.Height, paint);
 
@@ -158,8 +166,8 @@ namespace ChicShop
                 using (var textPaint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
-                    TextSize = (int)(ChicRatios.Get1024(200) * EntryHeight),
+                    FilterQuality = SKFilterQuality.Low,
+                    TextSize = (int)(ChicRatios.Get1024(150) * EntryHeight),
                     Color = SKColors.White,
                     Typeface = ChicTypefaces.BurbankBigRegularBlack,
                     ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
@@ -169,9 +177,9 @@ namespace ChicShop
                     int textWidth = (int)textPaint.MeasureText(sacText);
 
                     int left = (merge.Width - textWidth) / 2;
-                    int top = merge.Height - (int)(ChicRatios.Get1024(200) * EntryHeight * 2);
+                    int top = merge.Height - (int)(ChicRatios.Get1024(150) * EntryHeight * 2);
                     int right = left + textWidth;
-                    int bottom = merge.Height - (int)(ChicRatios.Get1024(200) * EntryHeight);
+                    int bottom = merge.Height - (int)(ChicRatios.Get1024(150) * EntryHeight);
 
                     ChicText.DrawMultilineText(c, sacText, new SKRect(left, top, right, bottom), textPaint);
 
@@ -264,7 +272,7 @@ namespace ChicShop
                         new SKPaint
                         {
                             IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High,
+                            FilterQuality = SKFilterQuality.Low,
                             Color = new SKColor(40, 40, 40)
                         });
 
@@ -272,13 +280,13 @@ namespace ChicShop
                         new SKPaint
                         {
                             IsAntialias = true,
-                            FilterQuality = SKFilterQuality.High
+                            FilterQuality = SKFilterQuality.Low
                         });
 
                     var textPaint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
+                        FilterQuality = SKFilterQuality.Low,
                         TextSize = 200,
                         Color = SKColors.White,
                         Typeface = ChicTypefaces.BurbankBigRegularBlack,
@@ -367,7 +375,7 @@ namespace ChicShop
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
+                        FilterQuality = SKFilterQuality.Low,
                         Color = new SKColor(40, 40, 40)
                     }) c.DrawRect(0, 0, bitmap.Width, bitmap.Height, paint);
 
@@ -382,7 +390,7 @@ namespace ChicShop
 
                         using (var b = LoadFromCache(entry.Value))
                         {
-                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.High })
+                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.Low })
                                 c.DrawBitmap(b, x, y, paint);
                         }
 
@@ -402,7 +410,7 @@ namespace ChicShop
                     using (var paint = new SKPaint
                     {
                         IsAntialias = true,
-                        FilterQuality = SKFilterQuality.High,
+                        FilterQuality = SKFilterQuality.Low,
                         Color = SKColors.White,
                         TextSize = h,
                         Typeface = ChicTypefaces.BurbankBigRegularBlack,
@@ -439,7 +447,7 @@ namespace ChicShop
                     Banner = entry.HasBanner ? entry.Banner.Value.ToUpper() : "",
                     Price = entry.FinalPrice,
                     IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon, $"icon_{item.Id}{(entry.IsBundle ? "_Bundle.png" : ".png")}"),
-                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image) : null,
+                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image, item.Series.BackendValue) : null,
                     Width = EntryWidth,
                     Height = EntryHeight
                 })
@@ -483,12 +491,12 @@ namespace ChicShop
 
         public bool IsInCache(string path) => File.Exists(path);
 
-        public SKBitmap GetBitmapFromUrl(string url, string name = "ek.png") => GetBitmapFromUrl(new Uri(url), name);
-        public SKBitmap GetBitmapFromUrl(Uri url, string name = "ek.png")
+        public SKBitmap GetBitmapFromUrl(string url, string name = "noname.png") => GetBitmapFromUrl(new Uri(url), name);
+        public SKBitmap GetBitmapFromUrl(Uri url, string name = "noname.png")
         {
-            Console.WriteLine($"{Root}Cache/{name}");
-
             if (IsInCache($"{Root}Cache/{name}")) return LoadFromCache($"{Root}Cache/{name}");
+
+            Console.WriteLine($"{Root}Cache/{name}");
 
             using (var client = new HttpClient())
             {

@@ -191,6 +191,7 @@ namespace ChicShop.Chic.Shop
             Pickaxe,
             Wrap,
             Emote,
+            Music,
             Other
         }
     }
@@ -224,6 +225,6 @@ namespace ChicShop.Chic.Shop
         [JsonProperty("featured")]
         public Uri Featured;
         [JsonProperty("other")]
-        public Uri Other;
+        public Dictionary<string, Uri> Other;
     }
 }

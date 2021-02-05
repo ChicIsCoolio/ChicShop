@@ -50,7 +50,7 @@ namespace ChicShop.Chic
                 int x = (icon.Width - size) / 2;
                 int y = (icon.Height - size) / 2;
 
-                using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+                using (var paint = new SKPaint { FilterQuality = SKFilterQuality.Low, IsAntialias = true })
                     c.DrawBitmap(icon.RarityBackgroundImage, new SKRect(x, y, size, size), paint);
             }
             else
@@ -66,7 +66,7 @@ namespace ChicShop.Chic
                 using (var paint = new SKPaint
                 {
                     IsAntialias = true,
-                    FilterQuality = SKFilterQuality.High,
+                    FilterQuality = SKFilterQuality.Low,
                     Shader = shader
                 }) c.DrawRect(new SKRect(0, 0, icon.Width, icon.Height), paint);
             }
