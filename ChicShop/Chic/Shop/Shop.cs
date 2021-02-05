@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ChicShop.Chic.Shop
 {
@@ -81,6 +82,24 @@ namespace ChicShop.Chic.Shop
         public string NewDisplayAssetPath;
         [JsonProperty("items")]
         public EntryItem[] Items;
+
+        string cacheid;
+        public string CacheId
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cacheid)) return cacheid;
+
+                cacheid = $"{FinalPrice}{IsBundle}";
+
+                foreach (var item in Items)
+                {
+                    cacheid += item.Id;
+                }
+
+                return cacheid;
+            }
+        }
 
         public bool HasBanner => Banner != null;
         public bool IsBundle => Bundle != null;

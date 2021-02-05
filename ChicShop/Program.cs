@@ -1,22 +1,18 @@
-using System;
-using System.Windows;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.IO;
-using System.Reactive.Concurrency;
-using SkiaSharp;
 using ChicShop.Chic;
-using System.Collections.Generic;
-using ChicShop.Chic.Shop;
 using ChicShop.Chic.Content;
-using System.Linq;
-using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
-using ChicShop.Chic.WebServer;
-using System.Runtime.InteropServices.ComTypes;
-using System.Collections.Immutable;
+using ChicShop.Chic.Shop;
 using ChicShop.Chic.Twitter;
+using ChicShop.Chic.WebServer;
+using LinqToTwitter.Common;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 
 namespace ChicShop
 {
@@ -27,13 +23,15 @@ namespace ChicShop
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
 
-        bool enableCommands;
+        bool enableCommands = true;
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
+            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
+
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -77,6 +75,10 @@ namespace ChicShop
                     Directory.Delete($"{Root}Cache", true);
                     Console.WriteLine("Cleared cache!");
                     break;
+                case "tweet":
+                        Console.WriteLine("Enter Status:");
+                        TwitterManager.Tweet(Console.ReadLine());
+                        break;
                 default:
                     Console.WriteLine("Wrong command!");
                     break;
@@ -121,35 +123,17 @@ namespace ChicShop
 
             using (var full = A(sections, bitmaps))
             {
-                int w = (int)(full.Width / 1.3);
-                int h = (int)(full.Height / 1.3);
-
-                SaveToCache(full, $"{Root}Cache/shop.png");
-                sections = null;
-                bitmaps = null;
-                
-                GC.Collect();
-
-                using (var bmp = new SKBitmap(w, h))
+                using (var image = SKImage.FromBitmap(full))
                 {
-                    using (var c = new SKCanvas(bmp))
-                    using (var b = LoadFromCache($"{Root}Cache/shop.png"))
+                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                     {
-                        c.DrawBitmap(b, new SKRect(0, 0, w, h));
-                    }
-
-                    using (var image = SKImage.FromBitmap(bmp))
-                    {
-                        using (var dat = image.Encode(SKEncodedImageFormat.Png, 100))
+                        using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png"))
                         {
-                            using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png"))
-                            {
-                                dat.SaveTo(stream);
-                            }
+                            data.SaveTo(stream);
                         }
                     }
                 }
-
+                
                 string suffix = (date.Day % 10 == 1 && date.Day != 11) ? "st"
                     : (date.Day % 10 == 2 && date.Day != 12) ? "nd"
                     : (date.Day % 10 == 3 && date.Day != 13) ? "rd"
@@ -157,13 +141,59 @@ namespace ChicShop
 
                 string status = $"Fortnite Item Shop\n{string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
-                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
-                File.Delete($"{Root}Cache/shop.png");
+                #region TryCatchSend
+                try
+                {
+                    TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
+                } catch (TwitterQueryException)
+                {
+                    int w = (int)(full.Width / 1.5);
+                    int h = (int)(full.Height / 1.5);
+
+                    SaveToCache(full, "shop");
+                    sections = null;
+                    bitmaps = null;
+
+                    GC.Collect();
+
+                    using (var bmp = new SKBitmap(w, h))
+                    {
+                        using (var c = new SKCanvas(bmp))
+                        using (var b = LoadFromCache("shop"))
+                        {
+                            c.DrawBitmap(b, new SKRect(0, 0, w, h));
+                        }
+
+                        using (var image = SKImage.FromBitmap(bmp))
+                        {
+                            using (var dat = image.Encode(SKEncodedImageFormat.Png, 100))
+                            {
+                                using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}_small.png"))
+                                {
+                                    dat.SaveTo(stream);
+                                }
+                            }
+                        }
+                    }
+
+                    try
+                    {
+                        TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}_small.png", status);
+                    }
+                    catch (Exception)
+                    {
+                        TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/3cDXY5I");
+                    }
+                }
+                #endregion
             }
 
             watch.Stop();
             Console.WriteLine($"Done in {watch.Elapsed} ms");
             watch = null;
+
+            DeleteFromCache("shop");
+            DeleteFromCache(file => file.StartsWith("section_"));
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -466,7 +496,7 @@ namespace ChicShop
 
                 sectionEntries = null;
 
-                sectionsBitmaps.Add(section, SaveToCache(bitmap, $"{Root}/Cache/{section.SectionId}.png"));
+                sectionsBitmaps.Add(section, SaveToCache(bitmap, "section_" + section.SectionId));
             }
 
             content = null;
@@ -483,6 +513,12 @@ namespace ChicShop
             foreach (var entry in entries)
             {
                 var item = entry.Items[0];
+                
+                if (IsInCache(entry.CacheId))
+                {
+                    entr.Add(entry, DataFromCache(entry.CacheId));
+                    continue;
+                }
 
                 using (var icon = new BaseIcon
                 {
@@ -490,24 +526,60 @@ namespace ChicShop
                     ShortDescription = (entry.IsBundle ? entry.Bundle.Info : item.Type.DisplayValue).ToUpper(),
                     Banner = entry.HasBanner ? entry.Banner.Value.ToUpper() : "",
                     Price = entry.FinalPrice,
-                    IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon, $"icon_{item.Id}{(entry.IsBundle ? "_Bundle.png" : ".png")}"),
-                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image, item.Series.BackendValue + ".png") : null,
+                    IconImage = GetBitmapFromUrl(entry.IsBundle ? entry.Bundle.Image : item.Images.Featured ?? item.Images.Icon ?? item.Images.SmallIcon, $"{item.Id}{(entry.IsBundle ? "_Bundle" : "")}"),
+                    RarityBackgroundImage = item.HasSeries && item.Series.Image != null ? GetBitmapFromUrl(item.Series.Image, item.Series.BackendValue) : null,
                     Width = EntryWidth,
                     Height = EntryHeight
                 })
                 {
                     ChicRarity.GetRarityColors(icon, item.Rarity.BackendValue);
 
-                    entr.Add(entry, SaveToCache(ChicIcon.GenerateIcon(icon), $"{Root}Cache/{item.Id}{(entry.IsBundle ? "_Bundle" : "")}.png"));
+                    entr.Add(entry, SaveToCache(ChicIcon.GenerateIcon(icon), entry.CacheId));
                 }
             }
         }
 
-        public BitmapData SaveToCache(SKBitmap bitmap, string path, bool dispose = true)
+        public void DeleteFromCache(Func<string, bool> predicate)
         {
+            foreach (var file in Directory.GetFiles($"{Root}Cache"))
+            {
+                if (predicate(file))
+                {
+                    Console.WriteLine($"Deleting {file} from cache");
+                    File.Delete(file);
+                }
+            }
+        }
+
+        public void DeleteFromCache(string fileName)
+        {
+            if (IsInCache(fileName))
+            {
+                Console.WriteLine($"Deleting {fileName} from cache");
+                File.Delete($"{Root}Cache/{fileName}.png");
+            }
+        }
+
+        public BitmapData DataFromCache(string fileName)
+        {
+            using (var b = LoadFromCache(fileName))
+            {
+                return new BitmapData
+                {
+                    Path = $"{Root}/Cache/{fileName}.png",
+                    Width = b.Width,
+                    Height = b.Height
+                };
+            }
+        }
+
+        public BitmapData SaveToCache(SKBitmap bitmap, string fileName, bool dispose = true)
+        {
+            Console.WriteLine($"Saving {fileName} to cache");
+
             BitmapData d = new BitmapData
             {
-                Path = path,
+                Path = $"{Root}/Cache/{fileName}.png",
                 Width = bitmap.Width,
                 Height = bitmap.Height
             };
@@ -516,7 +588,7 @@ namespace ChicShop
             {
                 using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                 {
-                    using (var stream = File.OpenWrite(path))
+                    using (var stream = File.OpenWrite($"{Root}/cache/{fileName}.png"))
                     {
                         data.SaveTo(stream);
                     }
@@ -530,27 +602,27 @@ namespace ChicShop
             return d;
         }
 
-        public SKBitmap LoadFromCache(BitmapData data) => LoadFromCache(data.Path);
-        public SKBitmap LoadFromCache(string path) => SKBitmap.Decode(path);
+        public SKBitmap LoadFromCache(BitmapData data) => SKBitmap.Decode(data.Path);
+        public SKBitmap LoadFromCache(string fileName) => SKBitmap.Decode($"{Root}Cache/{fileName}.png");
 
-        public bool IsInCache(string path) => File.Exists(path);
+        public bool IsInCache(string fileName) => File.Exists($"{Root}Cache/{fileName}.png");
 
-        public SKBitmap GetBitmapFromUrl(string url, string name = "noname.png") => GetBitmapFromUrl(new Uri(url), name);
-        public SKBitmap GetBitmapFromUrl(Uri url, string name = "noname.png")
+        public SKBitmap GetBitmapFromUrl(string url, string fileName = "noname") => GetBitmapFromUrl(new Uri(url), fileName);
+        public SKBitmap GetBitmapFromUrl(Uri url, string fileName = "noname")
         {
-            if (IsInCache($"{Root}Cache/{name}")) return LoadFromCache($"{Root}Cache/{name}");
-
-            Console.WriteLine($"{Root}Cache/{name}");
+            if (IsInCache(fileName)) return LoadFromCache(fileName);
 
             using (var client = new HttpClient())
             {
+                Console.WriteLine($"Downloading {fileName} from {url}");
+
                 var bytes = client.GetByteArrayAsync(url).Result;
 
                 using (var stream = new MemoryStream(bytes))
                 {
                     SKBitmap bitmap = SKBitmap.Decode(stream);
 
-                    SaveToCache(bitmap, $"{Root}Cache/{name}", false);
+                    SaveToCache(bitmap, fileName, false);
                     return bitmap;
                 }
             }

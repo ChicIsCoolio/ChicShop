@@ -30,7 +30,14 @@ namespace ChicShop.Chic.Twitter
             Context = new TwitterContext(auth);
         }
 
-        public static void SendMediaTweet(string filePath, string status)
+        public static void Tweet(string status)
+        {
+            if (Context == null) Auth();
+
+            Context.TweetAsync(status);
+        }
+
+        public static void TweetWithMedia(string filePath, string status)
         {
             if (Context == null) Auth();
 
