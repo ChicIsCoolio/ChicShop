@@ -26,14 +26,12 @@ namespace ChicShop
 
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
-        s
+        
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
         public async Task MainAsync(string[] args)
         {
-            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
-
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -124,14 +122,6 @@ namespace ChicShop
                     }
                 }
 
-                /*using (var data = SKImage.FromBitmap(full).Encode(SKEncodedImageFormat.Jpeg, 100))
-                {
-                    using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
-                    {
-                        data.SaveTo(stream);
-                    }
-                }*/
-
                 string suffix = (date.Day % 10 == 1 && date.Day != 11) ? "st"
                     : (date.Day % 10 == 2 && date.Day != 12) ? "nd"
                     : (date.Day % 10 == 3 && date.Day != 13) ? "rd"
@@ -139,7 +129,7 @@ namespace ChicShop
 
                 string status = $"Fortnite Item Shop\n{string.Format("{0:dddd}, {0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
-                //TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
+                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
             }
 
             watch.Stop();
