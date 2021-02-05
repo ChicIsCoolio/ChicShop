@@ -30,8 +30,6 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
-
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
