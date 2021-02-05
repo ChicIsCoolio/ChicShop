@@ -41,9 +41,6 @@ namespace ChicShop
 
             WebServer.Start();
 
-            Console.WriteLine("Generate shop now?");
-            if (Console.ReadLine() == "y") GenerateShop();
-
             var shop = Shop.Get(Environment.GetEnvironmentVariable("APIKEY")).Data;
 
             DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
@@ -61,6 +58,17 @@ namespace ChicShop
             });
 
             await Task.Delay(-1);        
+        }
+
+        public void DoCommand()
+        {
+            switch Console.ReadLine()
+            {
+                "generate shop" => GenerateShop();
+                "clear cache" => Directory.Delete($"{Root}Cache", true);
+            }
+
+            DoCommand();
         }
 
         public void GenerateShop()
@@ -93,10 +101,10 @@ namespace ChicShop
 
             using (var full = A(sections, bitmaps))
             {
-                int w = (int)(full.Width / 1.5);
-                int h = (int)(full.Height / 1.5);
+                int w = (int)(full.Width / 1.3);
+                int h = (int)(full.Height / 1.3);
 
-                SaveToCache(full, "shop.png");
+                SaveToCache(full, $"{Root}Cache/shop.png");
                 sections = null;
                 bitmaps = null;
                 
@@ -105,16 +113,16 @@ namespace ChicShop
                 using (var bmp = new SKBitmap(w, h))
                 {
                     using (var c = new SKCanvas(bmp))
-                    using (var b = LoadFromCache("shop.png"))
+                    using (var b = LoadFromCache($"{Root}Cache/shop.png"))
                     {
                         c.DrawBitmap(b, new SKRect(0, 0, w, h));
                     }
 
                     using (var image = SKImage.FromBitmap(bmp))
                     {
-                        using (var dat = image.Encode(SKEncodedImageFormat.Jpeg, 100))
+                        using (var dat = image.Encode(SKEncodedImageFormat.Png, 100))
                         {
-                            using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
+                            using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png"))
                             {
                                 dat.SaveTo(stream);
                             }
@@ -129,13 +137,11 @@ namespace ChicShop
 
                 string status = $"Fortnite Item Shop\n{string.Format("{0:dddd}, {0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
-                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
+                TwitterManager.SendMediaTweet($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
             }
 
             watch.Stop();
             Console.WriteLine($"Done in {watch.Elapsed} ms");
-
-            Directory.Delete($"{Root}Cache", true);
             watch = null;
 
             GC.Collect();
