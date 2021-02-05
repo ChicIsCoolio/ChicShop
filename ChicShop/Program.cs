@@ -23,7 +23,7 @@ namespace ChicShop
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
 
-        bool enableCommands = true;
+        bool enableCommands = false;
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
