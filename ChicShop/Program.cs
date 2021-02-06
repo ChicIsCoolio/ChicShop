@@ -23,7 +23,7 @@ namespace ChicShop
         public int EntryHeight { get; private set; } = 640;
         public int EntryWidth { get; private set; } = 480;
 
-        bool enableCommands = false;
+        bool authed = false;
 
         static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
@@ -48,14 +48,17 @@ namespace ChicShop
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
-                GenerateShop();
-                Console.WriteLine("\"Generated\": " + time);
-                Console.WriteLine($"Number: {++generated}");
+                if (authed)
+                {
+                    GenerateShop();
+                    Console.WriteLine("\"Generated\": " + time);
+                    Console.WriteLine($"Number: {++generated}");
+                }
 
                 reschedule(time.AddDays(1));
             });
 
-            Console.WriteLine("Enter key to enable commands:");
+            Console.WriteLine("Enter key to turn on:");
             DoCommand(Console.ReadLine());
 
             await Task.Delay(-1);        
@@ -63,7 +66,7 @@ namespace ChicShop
 
         public void DoCommand(string command)
         {
-            if (enableCommands)
+            if (authed)
             switch (command)
             {
                 case "generate shop": 
@@ -83,11 +86,11 @@ namespace ChicShop
             }
             else if (command == Environment.GetEnvironmentVariable("COMMANDSKEY"))
             {
-                enableCommands = true;
+                authed = true;
                 Console.WriteLine("Commands enabled");
             }
 
-            Console.WriteLine(enableCommands ? "Enter command:" : "Wrong key.\nTry again:");
+            Console.WriteLine(authed ? "Enter command:" : "Wrong key.\nTry again:");
             DoCommand(Console.ReadLine());
         }
 
