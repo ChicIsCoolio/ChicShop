@@ -42,23 +42,23 @@ namespace ChicShop
             var shop = Shop.Get(Environment.GetEnvironmentVariable("APIKEY")).Data;
 
             DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
+
+            Console.WriteLine("The shop will generate at " + time);
+
             shop = null;
 
             int generated = 0;
 
             Scheduler.Default.Schedule(time, reschedule =>
             {
-                if (authed)
-                {
-                    GenerateShop();
-                    Console.WriteLine("\"Generated\": " + time);
-                    Console.WriteLine($"Number: {++generated}");
-                }
+                GenerateShop();
+                Console.WriteLine("\"Generated\": " + time);
+                Console.WriteLine($"Number: {++generated}");
 
                 reschedule(time.AddDays(1));
             });
 
-            Console.WriteLine("Enter key to turn on:");
+            Console.WriteLine("Enter key to enable commands:");
             DoCommand(Console.ReadLine());
 
             await Task.Delay(-1);        

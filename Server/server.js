@@ -9,7 +9,7 @@ function getShops(then) {
         var shops = [];
         
         files.forEach(file => {
-            var dateString = file.replace(".png", "").replace(".jpg", "");
+            var dateString = file.replace(".png", "").replace(".jpg", "").replace("_small", "");
             var split = dateString.split("-");
             var date = new Date(split[2], split[1], split[0]);
 
