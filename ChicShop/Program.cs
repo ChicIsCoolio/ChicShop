@@ -143,7 +143,7 @@ namespace ChicShop
                 string status = $"Fortnite Item Shop\n{string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
                 #region TryCatchSend
-                try
+                /*try
                 {
                     TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
                 } catch (Exception)
@@ -185,7 +185,7 @@ namespace ChicShop
                     {
                         TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/ChicIsCoolioShop");
                     }
-                }
+                }*/
                 #endregion
             }
 
@@ -222,7 +222,7 @@ namespace ChicShop
                 {
                     IsAntialias = true,
                     FilterQuality = SKFilterQuality.High,
-                    Color = new SKColor(40, 40, 40)
+                    Color = SKColor.Parse("#e7accb")//new SKColor(40, 40, 40)
                 }) c.DrawRect(0, 0, merge.Width, merge.Height, paint);
 
                 sections.ToList().ForEach(section =>
@@ -259,6 +259,24 @@ namespace ChicShop
                     ChicText.DrawMultilineText(c, sacText, new SKRect(left, top, right, bottom), textPaint);
 
                     sacText = "";
+                }
+
+                using (var shadow = new SKPaint
+                {
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, 10, 10, SKColors.Black)
+                })
+                {
+                    using (var heart = SKBitmap.Decode($"{Root}Resources/heartTopLeft.png"))
+                    {
+                        c.DrawBitmap(heart, 0, 0, shadow);
+                    }
+
+                    using (var hearts = SKBitmap.Decode($"{Root}Resources/heartsBottomRight.png"))
+                    {
+                        c.DrawBitmap(hearts, merge.Width - hearts.Width, merge.Height - hearts.Height, shadow);
+                    }
                 }
             }
 
@@ -451,7 +469,7 @@ namespace ChicShop
                     {
                         IsAntialias = true,
                         FilterQuality = SKFilterQuality.High,
-                        Color = new SKColor(40, 40, 40)
+                        Color = SKColor.Parse("#e7accb")//new SKColor(40, 40, 40)
                     }) c.DrawRect(0, 0, bitmap.Width, bitmap.Height, paint);
 
                     int x = f;//100;
