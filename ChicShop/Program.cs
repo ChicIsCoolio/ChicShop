@@ -146,7 +146,7 @@ namespace ChicShop
                 try
                 {
                     TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
-                } catch (TwitterQueryException)
+                } catch (Exception)
                 {
                     int w = (int)(full.Width / 1.5);
                     int h = (int)(full.Height / 1.5);
@@ -183,7 +183,7 @@ namespace ChicShop
                     }
                     catch (Exception)
                     {
-                        TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/3cDXY5I");
+                        TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/ChicIsCoolioShop");
                     }
                 }
                 #endregion
@@ -589,7 +589,7 @@ namespace ChicShop
             {
                 using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
                 {
-                    using (var stream = File.OpenWrite($"{Root}/cache/{fileName}.png"))
+                    using (var stream = File.OpenWrite($"{Root}/Cache/{fileName}.png"))
                     {
                         data.SaveTo(stream);
                     }
