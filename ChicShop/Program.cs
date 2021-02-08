@@ -20,8 +20,8 @@ namespace ChicShop
     {
         public static string Root = "/home/runner/ChicShop/";
 
-        public int EntryHeight { get; private set; } = 640;
-        public int EntryWidth { get; private set; } = 480;
+        public int EntryHeight { get; private set; } = 341;//640;
+        public int EntryWidth { get; private set; } = 256;//480;
 
         bool authed = false;
 
@@ -126,9 +126,9 @@ namespace ChicShop
             {
                 using (var image = SKImage.FromBitmap(full))
                 {
-                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var data = image.Encode(SKEncodedImageFormat.Jpeg, 100))
                     {
-                        using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png"))
+                        using (var stream = File.OpenWrite($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg"))
                         {
                             data.SaveTo(stream);
                         }
