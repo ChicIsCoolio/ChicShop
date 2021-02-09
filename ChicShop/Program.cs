@@ -143,9 +143,9 @@ namespace ChicShop
                 string status = $"Fortnite Item Shop\n{string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
 
                 #region TryCatchSend
-                /*try
+                try
                 {
-                    TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}.png", status);
+                    TwitterManager.TweetWithMedia($"{Root}Output/{date.ToString("dd-MM-yyyy")}.jpg", status);
                 } catch (Exception)
                 {
                     int w = (int)(full.Width / 1.5);
@@ -185,7 +185,7 @@ namespace ChicShop
                     {
                         TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", date, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/ChicIsCoolioShop");
                     }
-                }*/
+                }
                 #endregion
             }
 
