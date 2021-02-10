@@ -30,6 +30,7 @@ namespace ChicShop.Chic
                     ChicText.DrawBackground(c, icon);
                     //Display Name
                     ChicText.DrawDisplayName(c, icon);
+                    ChicText.DrawBundleInfo(c, icon);
 
                     if (!icon.ShortDescription.Equals(icon.DisplayName))
                     {

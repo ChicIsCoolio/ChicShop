@@ -10,6 +10,7 @@ namespace ChicShop.Chic
         public SKColor[] RarityColors;
         public string DisplayName;
         public string ShortDescription;
+        public string BundleInfo;
         public string Banner;
         public int Price;
         public int Width = 1024;
