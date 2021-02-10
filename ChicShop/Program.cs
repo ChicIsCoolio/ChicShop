@@ -32,8 +32,6 @@ namespace ChicShop
 
         public async Task MainAsync(string[] args)
         {
-            Root = "C:\\Users\\Hopík\\source\\repos\\ChicShop\\";
-
             if (args.Contains(arg => arg.Contains("entryWidth=")))
                 EntryHeight = int.Parse(args.First(arg => arg.Contains("entryHeight=")).Split('=')[1]);
             if (args.Contains(arg => arg.Contains("entryWidth=")))
@@ -44,7 +42,7 @@ namespace ChicShop
             WebServer.Start();
 
             var shop = ShopV2.Get();
-            DateTimeOffset time = shop.ShopDate.AddDays(1).AddSeconds(10);
+            DateTimeOffset time = shop.ShopDate.AddDays(1);
             Console.WriteLine("The shop will generate at " + time);
             
             shop = null;
