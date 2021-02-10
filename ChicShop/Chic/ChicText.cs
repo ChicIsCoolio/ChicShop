@@ -109,6 +109,47 @@ namespace ChicShop.Chic
             }
         }
 
+        public static void DrawBundleInfo(SKCanvas c, BaseIcon icon)
+        {
+            if (string.IsNullOrEmpty(icon.BundleInfo)) return;
+
+            int x = (int)(icon.Height * ChicRatios.Get(5));
+            int y = (int)(icon.Height * STARTER_POSITION_RATIO + icon.Height * NAME_TEXT_SIZE_RATIO);
+
+            using (var namePaint = new SKPaint
+            {
+                IsAntialias = true,
+                FilterQuality = SKFilterQuality.High,
+                Typeface = ChicTypefaces.BurbankBigCondensedBold,
+                TextSize = icon.Height * NAME_TEXT_SIZE_RATIO,
+                Color = SKColors.White,
+                //TextAlign = SKTextAlign.Left,
+                ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * 0.009765625f, icon.Height * 0.009765625f, SKColors.Black)
+            })
+            {
+
+                while (namePaint.MeasureText(icon.DisplayName) > icon.Width - x * 10)
+                {
+                    namePaint.TextSize--;
+                }
+
+                x += x * 2 + (int)namePaint.MeasureText(icon.DisplayName);
+
+                using (var paint = new SKPaint
+                {
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    Typeface = ChicTypefaces.BurbankBigCondensedBold,
+                    TextSize = icon.Height * ChicRatios.Get(23),
+                    Color = SKColors.White,
+                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black)
+                })
+                {
+                    c.DrawText(icon.BundleInfo, x, y, paint);
+                }
+            }
+        }
+
         public static void DrawToBottom(SKCanvas c, BaseIcon icon, SKTextAlign align, string text)
         {
             if (string.IsNullOrEmpty(text)) return;
