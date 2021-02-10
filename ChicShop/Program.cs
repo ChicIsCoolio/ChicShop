@@ -50,8 +50,6 @@ namespace ChicShop
             shop = null;
 
             int generated = 0;
-
-            DrawShop(ShopV2.Get());
             
             Scheduler.Default.Schedule(time, reschedule =>
             {
@@ -82,6 +80,9 @@ namespace ChicShop
                 case "generate shop": 
                     GenerateShop();
                     break;
+                case "draw shop":
+                    DrawShop(ShopV2.Get());
+                    break;
                 case "clear cache":
                     Directory.Delete($"{Root}Cache", true);
                     Console.WriteLine("Cleared cache!");
@@ -107,15 +108,102 @@ namespace ChicShop
         #region V2
         public void DrawShop(ShopV2 shop)
         {
-            DrawSections(shop);
+            var watch = new Stopwatch();
+            watch.Start();
+            var sections = DrawSections(shop);
 
-            GC.Collect();
+            int width = sections[0].Width;
+            int height = 0;
+            sections.ForEach(section => height += section.Height);
+
+            using (var bitmap = new SKBitmap(width, height))
+            {
+                using (var c = new SKCanvas(bitmap))
+                {
+                    int y = 0;
+
+                    foreach (var section in sections)
+                    {
+                        using (var sectionBitmap = LoadFromCache(section))
+                        {
+                            c.DrawBitmap(sectionBitmap, 0, y);
+                            y += section.Height;
+                        }
+                    }
+                }
+
+                string fileName = $"{shop.ShopDate.ToString("dd-MM-yyyy")}.jpg";
+
+                using (var image = SKImage.FromBitmap(bitmap))
+                {
+                    using (var data = image.Encode(SKEncodedImageFormat.Jpeg, 100))
+                    {
+                        using (var stream = File.OpenWrite($"{Root}Output/{fileName}"))
+                        {
+                            data.SaveTo(stream);
+                        }
+                    }
+                }
+
+                string suffix = (shop.ShopDate.Day % 10 == 1 && shop.ShopDate.Day != 11) ? "st"
+                    : (shop.ShopDate.Day % 10 == 2 && shop.ShopDate.Day != 12) ? "nd"
+                    : (shop.ShopDate.Day % 10 == 3 && shop.ShopDate.Day != 13) ? "rd"
+                    : "th";
+
+                string status = $"Fortnite Item Shop\n{string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", shop.ShopDate, suffix)}\n\nIf you want to support me,\nconsider using my code 'Chic'\n\n#Ad";
+
+                #region TryCatchSend
+                try
+                {
+                    TwitterManager.TweetWithMedia($"{Root}Output/{fileName}", status);
+                } catch (Exception)
+                {
+                    int w = (int)(bitmap.Width / 1.5);
+                    int h = (int)(bitmap.Height / 1.5);
+
+                    SaveToCache(bitmap, "shop");
+                    sections = null;
+
+                    GC.Collect();
+
+                    using (var bmp = new SKBitmap(w, h))
+                    {
+                        using (var c = new SKCanvas(bmp))
+                        using (var b = LoadFromCache("shop"))
+                        {
+                            c.DrawBitmap(b, new SKRect(0, 0, w, h));
+                        }
+
+                        using (var image = SKImage.FromBitmap(bmp))
+                        {
+                            using (var dat = image.Encode(SKEncodedImageFormat.Png, 100))
+                            {
+                                using (var stream = File.OpenWrite($"{Root}Output/{fileName.Replace(".jpg", "")}_small.png"))
+                                {
+                                    dat.SaveTo(stream);
+                                }
+                            }
+                        }
+                    }
+
+                    try
+                    {
+                        TwitterManager.TweetWithMedia($"{Root}Output/{fileName.Replace(".jpg", "")}_small.png", status);
+                    }
+                    catch (Exception)
+                    {
+                        TwitterManager.Tweet($"Fortnite Item Shop\n{ string.Format("{0:dddd},{0: d}{1} {0:MMMM yyyy}", shop.ShopDate, suffix)}\n\nI was not able to send the shop image.\nClick the link to view the shop:\nhttps://bit.ly/ChicIsCoolioShop");
+                    }
+                }
+                #endregion
+            }
+
+            watch.Stop();
+            Console.WriteLine($"Done in {watch.Elapsed}");
         }
 
         public List<BitmapData> DrawSections(ShopV2 shop)
         {
-            var watch = new Stopwatch();
-            watch.Start();
             int maxEntriesPerRow = 6;
             var result = new List<BitmapData>();
 
@@ -190,8 +278,6 @@ namespace ChicShop
                 }
             }
 
-            watch.Stop();
-            Console.WriteLine($"Done in {watch.Elapsed}");
             return result;
         }
 

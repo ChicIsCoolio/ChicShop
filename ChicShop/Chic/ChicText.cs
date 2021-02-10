@@ -99,10 +99,21 @@ namespace ChicShop.Chic
                 ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * 0.009765625f, icon.Height * 0.009765625f, SKColors.Black)
             })
             {
-
-                while (namePaint.MeasureText(text) > icon.Width - x * 2)
+                using (var paint = new SKPaint
                 {
-                    namePaint.TextSize--;
+                    IsAntialias = true,
+                    FilterQuality = SKFilterQuality.High,
+                    Typeface = ChicTypefaces.BurbankBigCondensedBold,
+                    TextSize = icon.Height * ChicRatios.Get(23),
+                    Color = SKColors.White,
+                    ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black)
+                })
+                {
+                    while (namePaint.MeasureText(icon.DisplayName) + paint.MeasureText(icon.BundleInfo) > icon.Width - x * 5)
+                    {
+                        namePaint.TextSize--;
+                        if (paint.TextSize > icon.Height * ChicRatios.Get(20)) paint.TextSize--;
+                    }
                 }
 
                 c.DrawText(text, x, y, namePaint);
@@ -127,14 +138,6 @@ namespace ChicShop.Chic
                 ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * 0.009765625f, icon.Height * 0.009765625f, SKColors.Black)
             })
             {
-
-                while (namePaint.MeasureText(icon.DisplayName) > icon.Width - x * 10)
-                {
-                    namePaint.TextSize--;
-                }
-
-                x += x * 2 + (int)namePaint.MeasureText(icon.DisplayName);
-
                 using (var paint = new SKPaint
                 {
                     IsAntialias = true,
@@ -145,6 +148,14 @@ namespace ChicShop.Chic
                     ImageFilter = SKImageFilter.CreateDropShadow(0, 0, icon.Height * ChicRatios.Get(5), icon.Height * ChicRatios.Get(5), SKColors.Black)
                 })
                 {
+                    while (namePaint.MeasureText(icon.DisplayName) + paint.MeasureText(icon.BundleInfo) > icon.Width - x * 5)
+                    {
+                        namePaint.TextSize--;
+                        if (paint.TextSize > icon.Height * ChicRatios.Get(20)) paint.TextSize--;
+                    }
+
+                    x += x * 2 + (int)namePaint.MeasureText(icon.DisplayName);
+
                     c.DrawText(icon.BundleInfo, x, y, paint);
                 }
             }
